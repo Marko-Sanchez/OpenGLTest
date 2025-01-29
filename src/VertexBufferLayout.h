@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <vector>
 
+// vertex attribute description.
 struct VertexBufferElement
 {
     unsigned int type;
@@ -24,15 +25,22 @@ struct VertexBufferElement
     }
 };
 
+// Since OpenGL stores multiple vertex attributes in a single buffer.
+// Vertex Buffer Layout helps define how a vertex attribute is structured inside a Vertex buffer object.
+//
+// A Vertex Buffer Object is simply an array of data, all vertex's attributes are stored sequentially in the VBO
+// this data is stored in GPU memory. this data is uploaded to the GPU from the CPU using glBufferData() (which is
+// currently done in VertexBuffer.h)
 class VertexBufferLayout
 {
     private:
-    unsigned int m_stride;
-    std::vector<VertexBufferElement> m_elements;
+    unsigned int m_stride;                      // size of a vertex attribute (attribute can contain: positions, colors, etc.).
+    std::vector<VertexBufferElement> m_elements;// array of a descriptions of vertex attribute.
 
     public:
     VertexBufferLayout();
 
+    template<typename T>
     void Add(unsigned int count);
 
     inline const std::vector<VertexBufferElement>& GetElements() const {return m_elements;}
