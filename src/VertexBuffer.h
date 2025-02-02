@@ -20,6 +20,6 @@ class VertexBuffer
     void Bind() const;
     void UnBind() const;
 
-    template<typename T>
-    void AddBuffer(unsigned int count, void* data);
+    void AddBuffer(unsigned int count, float* data);
+    void AddBuffer(unsigned int count, int* data);
 };

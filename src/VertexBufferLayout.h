@@ -17,6 +17,7 @@ struct VertexBufferElement
         {
             case GL_FLOAT: return sizeof(float);
             case GL_UNSIGNED_INT: return sizeof(unsigned int);
+            case GL_UNSIGNED_SHORT: return sizeof(unsigned short);
             case GL_UNSIGNED_BYTE: return 1;
         }
 
@@ -40,8 +41,10 @@ class VertexBufferLayout
     public:
     VertexBufferLayout();
 
-    template<typename T>
-    void Add(unsigned int count);
+    void AddFloat(unsigned int count);
+    void AddUint(unsigned int count);
+    void AddUshort(unsigned int count);
+    void AddUchar(unsigned int count);
 
     inline const std::vector<VertexBufferElement>& GetElements() const {return m_elements;}
     inline unsigned int GetStride () const {return m_stride;}

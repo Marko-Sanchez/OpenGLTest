@@ -20,14 +20,12 @@ void VertexBuffer::UnBind() const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-template<>
-void VertexBuffer::AddBuffer<float>(unsigned int count, void *data)
+void VertexBuffer::AddBuffer(unsigned int count, float *data)
 {
     glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), data, GL_STATIC_DRAW);
 }
 
-template<>
-void VertexBuffer::AddBuffer<int>(unsigned int count, void *data)
+void VertexBuffer::AddBuffer(unsigned int count, int *data)
 {
     glBufferData(GL_ARRAY_BUFFER, count * sizeof(int), data, GL_STATIC_DRAW);
 }
