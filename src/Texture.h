@@ -4,7 +4,7 @@
 
 // Reads texture and sends the data to gpu.
 // stb_image.h helps us with reading and loading the texture onto a local buffer,
-// of which then glTexImage2D() loads onto gpu memory.
+// of which then glTexImage2D() loads onto gpu memory, allowing texture to be read by shader.
 class Texture
 {
     private:
