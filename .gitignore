@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# CMAKE output
+/build
+/.cache
