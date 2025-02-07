@@ -1,0 +1,18 @@
+#version 330 core
+
+layout(location = 0) out vec4 color;
+
+// get data from vertex shader.
+in vec2 v_TexCords;
+
+uniform vec4 fu_color;
+uniform sampler2D u_Texture;
+
+void main()
+{
+    vec4 textColor = texture(u_Texture, v_TexCords);
+
+    // this sets it to the rainbow effect we created in draw loop.
+    // color = fu_color;
+    color = textColor;
+}
