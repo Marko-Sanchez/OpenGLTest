@@ -10,6 +10,12 @@ void VertexBufferLayout::AddFloat(unsigned int count)
     m_stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
 }
 
+void VertexBufferLayout::AddInt(unsigned int count)
+{
+    m_elements.push_back({GL_INT, count, GL_FALSE});
+    m_stride += count * VertexBufferElement::GetSizeOfType(GL_INT);
+}
+
 void VertexBufferLayout::AddUint(unsigned int count)
 {
     m_elements.push_back({GL_UNSIGNED_INT, count, GL_FALSE});

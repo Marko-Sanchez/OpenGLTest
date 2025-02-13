@@ -16,6 +16,7 @@ struct VertexBufferElement
         switch(type)
         {
             case GL_FLOAT: return sizeof(float);
+            case GL_INT: return sizeof(int);
             case GL_UNSIGNED_INT: return sizeof(unsigned int);
             case GL_UNSIGNED_SHORT: return sizeof(unsigned short);
             case GL_UNSIGNED_BYTE: return 1;
@@ -42,6 +43,7 @@ class VertexBufferLayout
     VertexBufferLayout();
 
     void AddFloat(unsigned int count);
+    void AddInt(unsigned int count);
     void AddUint(unsigned int count);
     void AddUshort(unsigned int count);
     void AddUchar(unsigned int count);
