@@ -138,21 +138,30 @@ int Shaders::GetUniformLocation(const std::string& name)
     return uLocation;
 }
 
+// glUniform1i and glUniform1iv are the only two functions that may be used to load uniform variables defined as sampler types.
 void Shaders::SetUniform1i(const std::string& name, int value)
 {
     int var_location{GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform1i: Variable Location Not Found" << std::endl;
-
+        std::cout << "SetUniform1i: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform1i(var_location, value);
+}
+
+void Shaders::SetUniform1iv(const std::string& name, int count, int* value)
+{
+    int var_location{GetUniformLocation(name)};
+    if (var_location <= -1)
+        std::cout << "SetUniform1iv: Variable "<< name <<" Location Not Found" << std::endl;
+
+    glUniform1iv(var_location, count, value);
 }
 
 void Shaders::SetUniform1f(const std::string& name, float value)
 {
     int var_location{GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform1f: Variable Location Not Found" << std::endl;
+        std::cout << "SetUniform1f: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform1f(var_location, value);
 }
@@ -161,7 +170,7 @@ void Shaders::SetUniform4f(const std::string& name, float v0, float v1, float v2
 {
     int var_location{GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform4f: Variable Location Not Found" << std::endl;
+        std::cout << "SetUniform4f: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform4f(var_location, v0, v1, v2, v3);
 }
@@ -170,7 +179,7 @@ void Shaders::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
 {
     int var_location{GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniformMat4f: Variable Location Not Found" << std::endl;
+        std::cout << "SetUniformMat4f: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniformMatrix4fv(var_location, 1, GL_FALSE, &matrix[0][0]);
 }
