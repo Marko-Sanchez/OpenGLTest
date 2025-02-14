@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 // Reads texture and sends the data to gpu.
 // stb_image.h helps us with reading and loading the texture onto a local buffer,
@@ -8,21 +10,17 @@
 class Texture
 {
     private:
-    unsigned int m_rendererID;
-    int m_Width;
-    int m_Height;
-    int m_BPP;
-
-    unsigned char* m_LocalBuffer;
-    std::string m_FilePath;
+    std::unordered_map<std::string, size_t> m_tMap;
+    std::vector<std::pair<unsigned int, unsigned int>> m_textureNames;
 
     public:
-    Texture(const std::string& path);
+    Texture();
     ~Texture();
 
-    void Bind(unsigned int slot = 0) const;
+    unsigned int UploadTexture(const std::string& name, const std::string& imagePath, unsigned int slot);
+    void Bind(const std::string& name);
     void UnBind() const;
 
-    inline int GetHeight() const {return m_Height;}
-    inline int GetWidth() const {return m_Width;}
+    unsigned int GetTextureName(const std::string& name) const;
+    int GetActiveTexture() const;
 };

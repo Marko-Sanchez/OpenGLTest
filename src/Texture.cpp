@@ -8,20 +8,33 @@
 
 #include "vendors/stb_image/stb_image.h"
 
-Texture::Texture(const std::string& path)
-    :m_rendererID(0), m_FilePath(path), m_Width(0), m_Height(0), m_BPP(0), m_LocalBuffer(nullptr)
+Texture::Texture()
+{}
+
+Texture::~Texture()
 {
+    for(auto& i: m_textureNames)
+    {
+        glDeleteTextures(1, &i.first);
+    }
+}
+
+unsigned int Texture::UploadTexture(const std::string& name, const std::string& imagePath, unsigned int slot = 0)
+{
+    unsigned char* buffer;
+    int width{0}, height{0}, bpp{0};
+
     // On error, continue; allowing no texture to appear on screen.
-    std::filesystem::path textpath = path;
+    std::filesystem::path textpath = imagePath;
     if (!std::filesystem::exists(textpath))
     {
-        std::cout << "Filepath " << path << "/ndoes not exist." << std::endl;
+        std::cout << "Filepath " << imagePath << "/ndoes not exist." << std::endl;
     }
 
     // sometimes image might be flipped to setting this fixes it.
     stbi_set_flip_vertically_on_load(1);
-    m_LocalBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_BPP, 4);// 4 since we want rgba
-    if (!m_LocalBuffer)
+    buffer = stbi_load(imagePath.c_str(), &width, &height, &bpp, 4);// 4 since we want rgba
+    if (!buffer)
     {
         // if m_LocalBuffer is nullptr and passed to glTexImage2D() memory is
         // allocated to accomadate height and width.
@@ -29,8 +42,9 @@ Texture::Texture(const std::string& path)
         std::cout << stbi_failure_reason() << std::endl;
     }
 
-    glGenTextures(1, &m_rendererID);
-    glBindTexture(GL_TEXTURE_2D, m_rendererID);
+    unsigned int textureName{0};
+    glGenTextures(1, &textureName);
+    glBindTexture(GL_TEXTURE_2D, textureName);
 
     // must specify these or will get black screen.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -39,28 +53,61 @@ Texture::Texture(const std::string& path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // send data to opengl.
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
-    glBindTexture(GL_TEXTURE_2D, m_rendererID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glBindTexture(GL_TEXTURE_2D, textureName);
 
     // frees image data.
-    if (m_LocalBuffer)
-        stbi_image_free(m_LocalBuffer);
+    if (buffer)
+        stbi_image_free(buffer);
+
+    m_tMap[name] = m_textureNames.size();
+    m_textureNames.emplace_back(textureName, slot);
+
+    return textureName;
 }
 
-Texture::~Texture()
+// select which texture unit the subsequent state calls will affect.
+// There are 0 -> (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1 ) available.
+void Texture::Bind(const std::string& name)
 {
-    glDeleteTextures(1, &m_rendererID);
-}
+    if(m_tMap.find(name) != m_tMap.end())
+    {
+        auto tIndex = m_tMap[name];
+        auto tName = m_textureNames[tIndex].first;
+        auto tSlot = m_textureNames[tIndex].second;
 
-void Texture::Bind(unsigned int slot) const
-{
-    // select which texture unit the subsequent state calls wil affect.
-    // There are 0 -> (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1 ) available.
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, m_rendererID);
+        glActiveTexture(GL_TEXTURE0 + tSlot);
+        glBindTexture(GL_TEXTURE_2D, tName);
+    }
+    else
+    {
+        std::cout << "Texture Name: " << name << " Not Found." << std::endl;
+    }
 }
 
 void Texture::UnBind() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+unsigned int Texture::GetTextureName(const std::string& name) const
+{
+    if (m_tMap.find(name) == m_tMap.end())
+    {
+        std::cout << "Name: " << name << " Not Found." << std::endl;
+        return 0;
+    }
+
+    auto tIndex = m_tMap.at(name);
+    auto tName = m_textureNames[tIndex].first;
+
+    return tName;
+}
+
+int Texture::GetActiveTexture() const
+{
+    int texture;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &texture);
+
+    return (texture - GL_TEXTURE0);
 }
