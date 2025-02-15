@@ -1,0 +1,18 @@
+#version 330 core
+
+layout (location = 0) out vec4 o_Color;
+
+in vec2 v_TexCord;
+flat in int v_TexIndex;
+
+uniform sampler2D u_Textures[2];
+
+void main()
+{
+    switch(v_TexIndex)
+    {
+        case 0: o_Color = texture(u_Textures[0], v_TexCord); break;
+        case 1: o_Color = texture(u_Textures[1], v_TexCord); break;
+        default: o_Color = vec4(v_TexCord, 0.0f, 1.0f); break;
+    }
+}

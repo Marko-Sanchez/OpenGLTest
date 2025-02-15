@@ -1,0 +1,17 @@
+#version 330 core
+
+layout (location = 0) in vec2 a_Position;
+layout (location = 1) in vec2 a_TexCord;
+layout (location = 2) in int a_TexIndex;
+
+uniform mat4 u_MVP;
+
+flat out int v_TexIndex;
+out vec2 v_TexCord;
+
+void main()
+{
+    v_TexIndex = a_TexIndex;
+    v_TexCord = a_TexCord;
+    gl_Position = u_MVP * vec4(a_Position, 0.0, 1.0);// (z: 0.0), (extra value 1 doesn't change matrix: 1.0)
+}
