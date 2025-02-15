@@ -1,7 +1,7 @@
 #include "MultiTexture.h"
 
+#include <iterator>
 #include <string>
-#include <utility>
 
 #include "GL/glew.h"
 #include "imgui/imgui.h"
@@ -14,31 +14,40 @@
 namespace tests
 {
     MultiTexture::MultiTexture()
-    :  m_shader("../res/Shaders/Shader.vertex", "../res/Shaders/Shader.fragment")
+    :m_shader("../res/Shaders/Multiple.vertex", "../res/Shaders/Multiple.fragment")
     {
         float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, // 0: vertex position (x,y), texture position (a, b)
-            0.5f, -0.5f, 1.0f, 0.0f, // 1
-            0.5f, 0.5f,  1.0f, 1.0f, // 2
-            -0.5f, 0.5f, 0.0f, 1.0f // 3
+            -0.5f, -0.5f, 0.0f, 0.0f, 0,// 0: vertex position (x,y), texture position (a, b), texIndex
+            0.5f, -0.5f, 1.0f, 0.0f,  0,// 1
+            0.5f, 0.5f,  1.0f, 1.0f,  0,// 2
+            -0.5f, 0.5f, 0.0f, 1.0f,  0,// 3
+
+            0.5f, -0.5f, 0.0f, 0.0f,  1,// 0: vertex position (x,y), texture position (a, b), texIndex
+            1.0f, -0.5f, 1.0f, 0.0f,  1,// 1
+            1.0f, 0.5f,  1.0f, 1.0f,  1,// 2
+            0.5f, 0.5f, 0.0f,  1.0f,  1// 3
         };
 
         unsigned int indexBuffer[] = {
             0, 1, 2,
-            2, 3, 0
+            2, 3, 0,
+
+            4, 5, 6,
+            6, 7, 4
         };
 
         VertexBufferLayout vbl;
 
         m_vertexBuffer.Bind();
-        m_vertexBuffer.AddBuffer(8/*a, b*/ + 8/* c, d*/, positions);
+        m_vertexBuffer.AddBuffer(std::size(positions), positions);
 
         vbl.AddFloat(2); // vertex position.
         vbl.AddFloat(2); // texture position.
+        vbl.AddInt(1); // texture index.
         m_vertexArray.AddBuffer(m_vertexBuffer, vbl);
 
         m_indexBuffer.Bind();
-        m_indexBuffer.AddBuffer(6, indexBuffer);
+        m_indexBuffer.AddBuffer(std::size(indexBuffer), indexBuffer);
 
         m_shader.CreateShader();
         m_shader.Bind();
@@ -51,23 +60,29 @@ namespace tests
         // we are not modifying the 'camera' so we create a identy matrix as a placeholder.
         m_viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0, 0));
 
-        UpdateTexture("../res/images/cheese.png", glm::vec3(0.5f, 0.5f, 0.0f));
-        UpdateTexture("../res/images/cheese.png", glm::vec3(1.0f, 1.0f, 0.0f));
-        UpdateTexture("../res/images/nachowink.png", glm::vec3(0.0f, 0.0f, 0.0f), 1);
+
+        int textureSampler[] = {0 , 1};
+        m_shader.SetUniform1iv("u_Textures", 2, textureSampler);
+
+        // TODO: Solve issue; Only one texture displays (cheese) should be showing two different textures.
+        AddTexture("cheese", "../res/images/cheese.png", glm::vec3(0.5f, 0.5f, 0.0f), 0);
+        AddTexture("nacho", "../res/images/nachowink.png", glm::vec3(0.0f, 0.0f, 0.0f), 1);
     }
 
     void MultiTexture::OnRender()
     {
+        const std::vector<std::string> names = {"cheese", "nacho"};
         m_shader.Bind();
 
-        for(auto translation: m_textureTranslations)
+        for(int i{0}; i < m_textureTranslations.size(); ++i)
         {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+            m_texture.Bind(names[i]);
+
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i]);
             glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
 
             // sends modified mvp value to shader.
             m_shader.SetUniformMat4f("u_MVP", mvp);
-
             m_renderer.Draw(m_vertexArray, m_shader);
         }
     }
@@ -83,14 +98,13 @@ namespace tests
     }
 
     // Adds texture and translation (model) matrix into vectors, to modify on draw calls.
-    void MultiTexture::UpdateTexture(const std::string& texture, glm::vec3 translation, int texturePosition)
+    // bind() links (glActiveTexture), shader then lets fragment know which texture to get
+    // pixel coloring from.
+    void MultiTexture::AddTexture(const std::string& name, const std::string& texturePath, glm::vec3 translation, int texturePosition)
     {
-        m_textureTranslations.push_back(translation);
+        m_texture.UploadTexture(name, texturePath, texturePosition);
+        m_texture.Bind(name);
 
-        // bind() links (glActiveTexture), shader then lets fragment know which texture to use to get
-        // pixel coloring from.
-        m_textures.emplace_back(texture);
-        m_textures.back().Bind(texturePosition);
-        m_shader.SetUniform1f("u_Texture", texturePosition);
+        m_textureTranslations.emplace_back(translation);
     }
 }

@@ -18,7 +18,7 @@
 
 namespace tests
 {
-    // MultiTexture displays multiple textures (3) using an orthographic projection.
+    // MultiTexture displays multiple textures (2) using an orthographic projection.
     class MultiTexture: public Test
     {
         private:
@@ -28,6 +28,7 @@ namespace tests
             VertexArray m_vertexArray;
             IndexBuffer m_indexBuffer;
             VertexBuffer m_vertexBuffer;
+            Texture m_texture;
 
             Shaders m_shader;
             Renderer m_renderer;
@@ -41,6 +42,6 @@ namespace tests
             void OnRender() override;
             void OnImGuiRender() override;
 
-            void UpdateTexture(const std::string& texture, glm::vec3 translation, int texturePosition = 0);
+            void AddTexture(const std::string& name, const std::string& texturePath, glm::vec3 translation, int texturePosition = 0);
     };
 }
