@@ -1,0 +1,12 @@
+#version 330 core
+
+out vec4 o_Color;
+
+in vec2 f_TexCords;
+flat in int f_TexID;
+
+void main()
+{
+    //o_Color = vec4(f_TexCords, 0.0f, 1.0f);
+    o_Color = vec4(f_TexID, f_TexID, f_TexID, 1.0f);
+}

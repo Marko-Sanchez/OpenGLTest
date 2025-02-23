@@ -1,0 +1,16 @@
+#version 330 core
+
+layout (location = 0) in vec3 v_Position;
+layout (location = 1) in vec2 v_TexCords;
+layout (location = 2) in int v_TexID;
+
+out vec2 f_TexCords;
+flat out int f_TexID;
+
+void main()
+{
+    f_TexCords = v_TexCords;
+    f_TexID = v_TexID;
+
+    gl_Position = vec4(v_Position, 1.0);
+}

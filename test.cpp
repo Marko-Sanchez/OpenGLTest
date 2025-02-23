@@ -19,6 +19,7 @@
 #include "ClearColor.h"
 #include "MultiTexture.h"
 #include "BatchRendering.h"
+#include "RawTexture.h"
 
 int main(void)
 {
@@ -69,6 +70,7 @@ int main(void)
     testMenu->RegisterTest<tests::ClearColor>("Clear Color");
     testMenu->RegisterTest<tests::MultiTexture>("Multiple Texture");
     testMenu->RegisterTest<tests::BatchRendering>("Batch Rendering");
+    testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
 
     Renderer renderer;
 
