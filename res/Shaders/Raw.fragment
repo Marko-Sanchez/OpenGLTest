@@ -5,8 +5,14 @@ out vec4 o_Color;
 in vec2 f_TexCords;
 flat in int f_TexID;
 
+uniform sampler2D texturez[2];
+
 void main()
 {
-    //o_Color = vec4(f_TexCords, 0.0f, 1.0f);
-    o_Color = vec4(f_TexID, f_TexID, f_TexID, 1.0f);
+    switch(f_TexID)
+    {
+        case 0: o_Color = texture(texturez[0], f_TexCords); break;
+        case 1: o_Color = texture(texturez[1], f_TexCords); break;
+        default: o_Color = vec4(f_TexCords, 0.0f, 1.0f);
+    }
 }

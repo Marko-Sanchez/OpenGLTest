@@ -9,20 +9,26 @@ namespace tests
 RawTexture::RawTexture()
 :m_shader("../res/Shaders/Raw.vertex","../res/Shaders/Raw.fragment")
 {
-    // todo: setting z to -5.0f, was causing the rect. not to appear setting it to 0.0f fixed it,
-    // rectangle is squead fix it.
-    std::vector<Vertex> vertices =
+    const std::vector<Vertex> vertices =
     {
-        {{-0.50f, -0.25f, 0.0f}, {0.0f, 0.0f}, 1},
-        {{-0.25f, -0.25f, 0.0f}, {1.0f, 0.0f}, 1},
-        {{-0.25f,  0.0f , 0.0f}, {1.0f, 1.0f}, 1},
-        {{-0.50f,  0.0f , 0.0f}, {0.0f, 1.0f}, 1}
+        {{-0.50f, -0.25f, 0.0f}, {0.0f, 0.0f}, 0},
+        {{-0.25f, -0.25f, 0.0f}, {1.0f, 0.0f}, 0},
+        {{-0.25f,  0.0f , 0.0f}, {1.0f, 1.0f}, 0},
+        {{-0.50f,  0.0f , 0.0f}, {0.0f, 1.0f}, 0},
+
+
+        {{0.25f, -0.25f, 0.0f}, {0.0f, 0.0f}, 1},
+        {{0.50f, -0.25f, 0.0f}, {1.0f, 0.0f}, 1},
+        {{0.50f,  0.0f , 0.0f}, {1.0f, 1.0f}, 1},
+        {{0.25f,  0.0f , 0.0f}, {0.0f, 1.0f}, 1}
     };
-    std::vector<unsigned int> ibuffer =
+    const std::vector<unsigned int> ibuffer =
     {
-        0, 1, 2, 2, 3, 0
+        0, 1, 2, 2, 3, 0,
+        4, 5, 6, 6, 7, 4
     };
 
+    // VAO must be bound before vbo and ibo are bound.
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -49,7 +55,11 @@ RawTexture::RawTexture()
     glEnableVertexAttribArray(2);
 
     // Use shader class to parse and compile shader.
+    // make sure to compile before setting uniform, else
+    // you wont be able to find the uniform in the shader and get
+    // a 1282:INVALID_OPERATION error.
     m_shader.CreateShader();
+    m_shader.Bind();
 
     // set vao globally to bind in render.
     m_vao = vao;
@@ -57,6 +67,18 @@ RawTexture::RawTexture()
     // set globally to delete buffers in destructor.
     m_vbo = vbo;
     m_ibo = ibo;
+
+    // Add textures.
+    int textureSampler[2] = {0, 1};
+    m_shader.SetUniform1iv("texturez", 2, textureSampler);
+
+    GLuint cheese_texturename = m_texture.UploadTexture("cheese", "../res/images/cheese.png", 0);
+    GLuint nacho_texturename = m_texture.UploadTexture("nacho", "../res/images/nachowink.png", 1);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, cheese_texturename);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, nacho_texturename);
 }
 
 RawTexture::~RawTexture()
@@ -70,21 +92,8 @@ void RawTexture::OnRender()
 {
     m_shader.Bind();
     glBindVertexArray(m_vao);
-    if (m_vao == 0) {
-        std::cerr << "Error: VAO is not initialized!" << std::endl;
-    }
-
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error before draw: " << err << std::endl;
-    }
 
     // since the ibo was bound to vao we can set the last parameter to nullptr. 6 is based on num elements in ibuffer.
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error after draw: " << err << std::endl;
-    }
+    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 }
 }

@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 #include "Shaders.h"
+#include "Texture.h"
 
 namespace tests
 {
@@ -17,6 +18,7 @@ namespace tests
             int textureid;
         };
 
+        Texture m_texture;
         Shaders m_shader;
         GLuint m_ibo;
         GLuint m_vbo;
