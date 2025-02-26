@@ -12,6 +12,7 @@ out vec2 v_TexCord;
 void main()
 {
     v_TexIndex = a_TexIndex;
-    v_TexCord = a_TexCord;
-    gl_Position = u_MVP * vec4(a_Position, 0.0, 1.0);// (z: 0.0), (extra value 1 doesn't change matrix: 1.0)
+    v_TexCord  = a_TexCord;
+
+    gl_Position = u_MVP * vec4(a_Position, 0.0, 1.0);
 }
