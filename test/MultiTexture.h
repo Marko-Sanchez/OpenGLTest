@@ -2,16 +2,12 @@
 
 #include "Test.h"
 
-#include <string>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
-#include "VertexBuffer.h"
 #include "glm/glm.hpp"
 
-#include "Renderer.h"
 #include "VertexArray.h"
+#include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Shaders.h"
 #include "Texture.h"
@@ -22,26 +18,29 @@ namespace tests
     class MultiTexture: public Test
     {
         private:
+            struct Vertex
+            {
+                float position[2];
+                float texcords[2];
+                int   texID;
+            };
+
             glm::mat4 m_projectionMatrix;
             glm::mat4 m_viewMatrix;
 
-            VertexArray m_vertexArray;
-            IndexBuffer m_indexBuffer;
-            VertexBuffer m_vertexBuffer;
+            Shaders m_shader;
+
+            VertexArray m_vao;
+            IndexBuffer m_ibo;
+            VertexBuffer m_vbo;
             Texture m_texture;
 
-            Shaders m_shader;
-            Renderer m_renderer;
-
             std::vector<glm::vec3> m_textureTranslations;
-            std::vector<Texture> m_textures;
 
         public:
             MultiTexture();
 
             void OnRender() override;
             void OnImGuiRender() override;
-
-            void AddTexture(const std::string& name, const std::string& texturePath, glm::vec3 translation, int texturePosition = 0);
     };
 }
