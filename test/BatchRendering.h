@@ -2,12 +2,12 @@
 
 #include "Test.h"
 
-#include "Shaders.h"
+#include "glm/fwd.hpp"
 
+#include "Shaders.h"
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-#include "glm/fwd.hpp"
 
 namespace tests
 {

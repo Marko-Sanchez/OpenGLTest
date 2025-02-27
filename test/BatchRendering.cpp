@@ -1,19 +1,17 @@
 #include "BatchRendering.h"
+
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
 #include "glm/trigonometric.hpp"
 #include "imgui/imgui.h"
-#include <iterator>
-
-#include "VertexBufferLayout.h"
 
 namespace tests
 {
     BatchRendering::BatchRendering()
     :m_shader("../res/Shaders/Rectangle.vertex", "../res/Shaders/Rectangle.fragment")
     {
-        float positions[] =
+        const std::vector<float> vertices =
         {
             // first square.    colors (rgba)
             -1.5f, -0.5f, -10.0f, 0.22f, 1.05f, 0.25f, 1.0f,
@@ -29,27 +27,22 @@ namespace tests
         };
 
         // Indexes help reduce redudant calls to draw vertices that share the same 'position.'
-        unsigned int indexes[] =
+        const std::vector<unsigned int> indexes =
         {
-            0, 1, 2,
-            2, 3, 0,
-
-            4, 5, 6,
-            6, 7, 4
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4
         };
 
-        VertexBufferLayout vbl;
+        m_va.Bind();
 
         m_vb.Bind();
-        m_vb.AddBuffer(std::size(positions), positions);
-        vbl.AddFloat(3); // positions: 3 floats (x, y, z)
-        vbl.AddFloat(4); // color: 4 floats (r, g, b, a)
+        m_vb.CreateBuffer(vertices);
 
-        m_va.Bind();
-        m_va.AddBuffer(m_vb,vbl);
+        m_va.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(0));
+        m_va.AddAttribute(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(sizeof(float) * 3));
 
         m_ib.Bind();
-        m_ib.AddBuffer(std::size(indexes), indexes);
+        m_ib.CreateBuffer(indexes);
 
         // glm::perspective() simulates distance of object to us, making it appear bigger/smaller.
         // first argument, controls the angle at which the camera sees the world; think of it
@@ -68,12 +61,12 @@ namespace tests
     void BatchRendering::OnRender()
     {
         m_shader.Bind();
+        m_va.Bind();
         {
             glm::mat4 model = glm::translate(glm::mat4(1.0f), m_translationMatrix);
             glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
             m_shader.SetUniformMat4f("u_MVP", mvp);
 
-            m_va.Bind();
             // batch render both rectangles: 12 = 2 rectangles, each made up of 2 triangles, each triangle has 3 positions/elements; 1 rectangle = 3 elements
             glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
         }
