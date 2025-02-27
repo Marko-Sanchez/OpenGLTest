@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include <vector>
+
 // Vertex Buffer creates a Vertex Buffer Object (VBO).
 //
 // glgenbuffers() returns an unused buffer name(s) (id), then
@@ -11,7 +13,7 @@
 class VertexBuffer
 {
     private:
-    unsigned int m_renderID;// store buffer object name.
+    unsigned int m_objectName;
 
     public:
     VertexBuffer();
@@ -20,6 +22,10 @@ class VertexBuffer
     void Bind() const;
     void UnBind() const;
 
-    void AddBuffer(unsigned int count, float* data);
-    void AddBuffer(unsigned int count, int* data);
+    template<typename T>
+    void CreateBuffer(const std::vector<T>& data)
+    {
+        Bind();
+        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
+    }
 };
