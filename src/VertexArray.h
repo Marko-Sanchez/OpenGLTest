@@ -11,7 +11,7 @@
 class VertexArray
 {
     private:
-    unsigned int m_renderID;
+    unsigned int m_objectName;
 
     public:
     VertexArray();
@@ -20,5 +20,9 @@ class VertexArray
     void Bind() const;
     void UnBind() const;
 
+    unsigned int GetName() const;
+
+    void AddAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* offset);
+    void AddIntAttribute(GLuint index, GLint size, GLsizei stride, const void* offset);
     void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl);
 };
