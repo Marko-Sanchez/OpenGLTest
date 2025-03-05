@@ -1,7 +1,6 @@
 #include "MultiTexture.h"
 
 #include <cstddef>
-#include <iterator>
 #include <string>
 
 #include "GL/glew.h"
@@ -31,7 +30,8 @@ namespace tests
         const std::vector<unsigned int> indexBuffer =
         {
             0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4
+            4, 5, 6, 6, 7, 4,
+            0, 1, 2, 2, 3, 0
         };
 
         m_vao.Bind();
@@ -59,13 +59,15 @@ namespace tests
         int textureSampler[] = {0 , 1};
         m_shader.SetUniform1iv("u_Textures", 2, textureSampler);
 
-        m_texture.UploadTexture("cheese", "../res/images/cheese.png", 0);
-        m_texture.Bind("cheese");
-        m_textureTranslations.emplace_back(glm::vec3(0.5f, 0.5f, 0.0f));
+        m_texture.UploadTexture("cheese1", "../res/images/cheese.png", 0);
+        m_textureTranslations.emplace_back("cheese1", glm::vec3(0.5f, 0.5f, 0.0f));
 
         m_texture.UploadTexture("nacho", "../res/images/nachowink.png", 1);
-        m_texture.Bind("nacho");
-        m_textureTranslations.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f));
+        m_textureTranslations.emplace_back("nacho", glm::vec3(0.0f, 0.0f, 0.0f));
+
+        // uses first quadrants indeces, and a different matrix transformation.
+        m_texture.UploadTexture("cheese2", "../res/images/cheese.png", 0);
+        m_textureTranslations.emplace_back("cheese2", glm::vec3(0.0f, 0.0f, 0.0f));
     }
 
     void MultiTexture::OnRender()
@@ -73,13 +75,12 @@ namespace tests
         m_shader.Bind();
         m_vao.Bind();
 
-        const std::vector<std::string> names = {"cheese", "nacho"};
         for(int i{0}; i < m_textureTranslations.size(); ++i)
         {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i]);
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i].translation);
             glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
 
-            m_texture.Bind(names[i]);
+            m_texture.Bind(m_textureTranslations[i].name);
 
             // sends modified mvp value to shader.
             m_shader.SetUniformMat4f("u_MVP", mvp);
@@ -93,7 +94,7 @@ namespace tests
         for(int i {0}; i < m_textureTranslations.size(); ++i)
         {
             name.back() = static_cast<char>('A' + i);
-            ImGui::SliderFloat2(name.c_str(), &m_textureTranslations[i].x, -1.5f, 1.5f);
+            ImGui::SliderFloat2(name.c_str(), &m_textureTranslations[i].translation.x, -1.5f, 1.5f);
         }
     }
 }
