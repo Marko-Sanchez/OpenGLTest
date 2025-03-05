@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <filesystem>
+#include <memory>
 #include <ostream>
+#include <utility>
 
 #include "GL/glew.h"
 
@@ -13,71 +15,69 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-    for(auto& i: m_textureNames)
+    for(auto& i: m_textures)
     {
-        glDeleteTextures(1, &i.first);
+        glDeleteTextures(1, &i.second.first);
     }
 }
 
-unsigned int Texture::UploadTexture(const std::string& name, const std::string& imagePath, unsigned int slot = 0)
+unsigned int Texture::UploadTexture(const std::string& name, const std::string& imagePath, unsigned int textureSlot = 0)
 {
-    unsigned char* buffer;
-    int width{0}, height{0}, bpp{0};
-
-    // On error, continue; allowing no texture to appear on screen.
-    std::filesystem::path textpath = imagePath;
+    std::filesystem::path textpath{imagePath};
     if (!std::filesystem::exists(textpath))
     {
-        std::cout << "Filepath " << imagePath << "/ndoes not exist." << std::endl;
+        std::cerr << "Filepath " << imagePath << "\ndoes not exist." << std::endl;
+        return GLuint(-1);
+    }
+    else if (m_textures.find(name) != m_textures.end())
+    {
+        std::cerr << "Texture with the name: (" << name << ") Already Exist !" << std::endl;
+        return GLuint(-1);
     }
 
     // sometimes image might be flipped to setting this fixes it.
     stbi_set_flip_vertically_on_load(1);
-    buffer = stbi_load(imagePath.c_str(), &width, &height, &bpp, 4);// 4 since we want rgba
-    if (!buffer)
-    {
-        // if m_LocalBuffer is nullptr and passed to glTexImage2D() memory is
-        // allocated to accomadate height and width.
-        std::cout << "Failed to load texture" << std::endl;
-        std::cout << stbi_failure_reason() << std::endl;
-    }
 
-    unsigned int textureName{0};
-    glGenTextures(1, &textureName);
-    glBindTexture(GL_TEXTURE_2D, textureName);
-
-    // must specify these or will get black screen.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // send data to opengl.
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    glBindTexture(GL_TEXTURE_2D, textureName);
-
-    // frees image data.
+    int width{0}, height{0}, bpp{0};
+    std::unique_ptr<unsigned char, decltype(&stbi_image_free)> buffer(stbi_load(imagePath.c_str(), &width, &height, &bpp, 4), &stbi_image_free);
     if (buffer)
-        stbi_image_free(buffer);
+    {
+        unsigned int textureName{0};
+        glGenTextures(1, &textureName);
+        glActiveTexture(GL_TEXTURE0 + textureSlot);
+        glBindTexture(GL_TEXTURE_2D, textureName);
 
-    m_tMap[name] = m_textureNames.size();
-    m_textureNames.emplace_back(textureName, slot);
+        // must specify these or will get black screen.
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    return textureName;
+        // send data to opengl.
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.get());
+
+        m_textures[name] = std::make_pair(textureName, textureSlot);
+
+        return textureName;
+    }
+    else
+    {
+        std::cerr << "Failed to load texture" << std::endl;
+        std::cerr << stbi_failure_reason() << std::endl;
+        return GLuint(-1);
+    }
 }
 
-// select which texture unit the subsequent state calls will affect.
-// There are 0 -> (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1 ) available.
+/*
+* Select which texture unit the subsequent state calls will affect.
+* There are 0 -> (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1 ) texture slots available.
+*/
 void Texture::Bind(const std::string& name)
 {
-    if(m_tMap.find(name) != m_tMap.end())
+    if(auto it = m_textures.find(name); it != m_textures.end())
     {
-        auto tIndex = m_tMap[name];
-        auto tName = m_textureNames[tIndex].first;
-        auto tSlot = m_textureNames[tIndex].second;
-
-        glActiveTexture(GL_TEXTURE0 + tSlot);
-        glBindTexture(GL_TEXTURE_2D, tName);
+        glActiveTexture(GL_TEXTURE0 + it->second.second);
+        glBindTexture(GL_TEXTURE_2D, it->second.first);
     }
     else
     {
@@ -90,20 +90,26 @@ void Texture::UnBind() const
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+/*
+* Finds texture name in unordered_map returns unsigned int 'texturename'.
+*
+* @param:
+* {const std::string& name}: name of texture.
+*/
 unsigned int Texture::GetTextureName(const std::string& name) const
 {
-    if (m_tMap.find(name) == m_tMap.end())
+    if (auto it = m_textures.find(name); it != m_textures.end())
     {
-        std::cout << "Name: " << name << " Not Found." << std::endl;
-        return 0;
+        return it->second.first;
     }
 
-    auto tIndex = m_tMap.at(name);
-    auto tName = m_textureNames[tIndex].first;
-
-    return tName;
+    std::cerr << "Name: " << name << " Not Found." << std::endl;
+    return GLuint(-1);
 }
 
+/*
+* Returns a single value indicating the current multitexture unit. Initial value is 0.
+*/
 int Texture::GetActiveTexture() const
 {
     int texture;
