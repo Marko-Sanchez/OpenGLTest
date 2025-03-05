@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
 
 // Vertex Array or Vertex Array Object (VAO) stores all the data
 // needed to needed to suply vertex information. It stores the format of
@@ -24,5 +23,4 @@ class VertexArray
 
     void AddAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* offset);
     void AddIntAttribute(GLuint index, GLint size, GLsizei stride, const void* offset);
-    void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& vbl);
 };
