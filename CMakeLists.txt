@@ -11,6 +11,10 @@ cmake_minimum_required(VERSION 3.10)
 # Project name and language
 project(OpenGLTest CXX)
 
+# Optimization flags based on build
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+
 # Set CPP Version
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
