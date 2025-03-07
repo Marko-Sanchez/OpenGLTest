@@ -20,6 +20,7 @@
 #include "MultiTexture.h"
 #include "BatchRendering.h"
 #include "RawTexture.h"
+#include "ColoredCube.h"
 
 int main(void)
 {
@@ -71,6 +72,7 @@ int main(void)
     testMenu->RegisterTest<tests::MultiTexture>("Multiple Texture");
     testMenu->RegisterTest<tests::BatchRendering>("Batch Rendering");
     testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
+    testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
 
     Renderer renderer;
 
