@@ -18,6 +18,7 @@ class Texture
     ~Texture();
 
     unsigned int UploadTexture(const std::string& name, const std::string& imagePath, unsigned int textureSlot);
+    unsigned int UploadBMP(const std::string& imagePath);
 
     void Bind(const std::string& name);
     void UnBind() const;
