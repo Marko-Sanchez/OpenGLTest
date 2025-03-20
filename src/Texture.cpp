@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <filesystem>
 #include <memory>
@@ -39,7 +41,7 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::string& 
     stbi_set_flip_vertically_on_load(1);
 
     int width{0}, height{0}, bpp{0};
-    std::unique_ptr<unsigned char, decltype(&stbi_image_free)> buffer(stbi_load(imagePath.c_str(), &width, &height, &bpp, 4), &stbi_image_free);
+    std::unique_ptr<unsigned char[], decltype(stbi_image_free) *> buffer(stbi_load(imagePath.c_str(), &width, &height, &bpp, 4), stbi_image_free);
     if (buffer)
     {
         unsigned int textureName{0};
@@ -66,6 +68,68 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::string& 
         std::cerr << stbi_failure_reason() << std::endl;
         return GLuint(-1);
     }
+}
+
+unsigned int Texture::UploadBMP(const std::string& imagePath, unsigned int textureSlot)
+{
+    const int BMP_HEADER_SIZE{54};
+
+    unsigned char header[BMP_HEADER_SIZE];
+    unsigned int dataPos, width, height, imageSize;
+
+    std::unique_ptr<FILE, decltype(std::fclose) *> uptr_file(std::fopen(imagePath.c_str(), "rb"), std::fclose);
+    if ( (std::fread(header, 1, BMP_HEADER_SIZE, uptr_file.get()) != BMP_HEADER_SIZE)
+        and (header[0] != 'B' or header[1] != 'M') )
+    {
+        std::cerr << "Not a BMP file" << std::endl;
+        return uint(-1);
+    }
+
+    std::memcpy(&dataPos, &header[0x0A], sizeof(dataPos));
+    std::memcpy(&imageSize, &header[0x22], sizeof(imageSize));
+    std::memcpy(&width, &header[0x12], sizeof(width));
+    std::memcpy(&height, &header[0x16], sizeof(height));
+
+    if (imageSize == 0) imageSize = width * height * 3;
+    if (dataPos == 0)  dataPos = 54;
+
+    auto data = std::make_unique<unsigned char[]>(imageSize);
+    if (std::fread(data.get(), 1, imageSize, uptr_file.get()) != imageSize)
+    {
+        std::cerr << "Failed to read BMP image data" << std::endl;
+        return uint(-1);
+    }
+
+    if (!data)
+    {
+        std::cerr << "Data is Null" << std::endl;
+        return uint(-1);
+    }
+
+    unsigned int textureName;
+    glGenTextures(1, &textureName);
+    glActiveTexture(GL_TEXTURE0 + textureSlot);
+    glBindTexture(GL_TEXTURE_2D, textureName);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data.get());
+    /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); */
+    /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); */
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // ... which requires mipmaps. Generate them automatically.
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    m_textures["BMP"] = std::make_pair(textureName, textureSlot);
+
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL Error: " << err << std::endl;
+    }
+
+    return textureName;
 }
 
 /*
