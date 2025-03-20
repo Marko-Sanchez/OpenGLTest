@@ -13,7 +13,7 @@
 namespace tests
 {
     ColoredCube::ColoredCube()
-    :m_shader("../res/Shaders/Rectangle.vertex", "../res/Shaders/Rectangle.fragment")
+    :m_shader("../res/Shaders/Cube.vertex", "../res/Shaders/Cube.fragment")
     {
         const std::vector<float> cubevertices =
         {
@@ -30,6 +30,7 @@ namespace tests
              1.0f,  1.0f, -13.0f,  0.597f,  0.770f,  0.761f, 1.0f,  // 6
             -1.0f,  1.0f, -13.0f,  0.559f,  0.436f,  0.730f, 1.0f,  // 7
         };
+
         const std::vector<unsigned int> indices =
         {
             // Front face
@@ -45,13 +46,13 @@ namespace tests
             // Bottom face
             0, 1, 5,  5, 4, 0
         };
+
         m_vao.Bind();
 
         m_vbo.Bind();
         m_vbo.CreateBuffer(cubevertices);
-
         m_vao.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(0));
-        m_vao.AddAttribute(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(sizeof(float) * 3));
+        m_vao.AddAttribute(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
 
         m_ibo.Bind();
         m_ibo.CreateBuffer(indices);
@@ -59,15 +60,15 @@ namespace tests
 
         translationmatrix = glm::vec3(0.0f, 0.0f, 0.0f);
 
+        cameraPosition = glm::vec3(0, 0, 3);
+        cameraTarget   = glm::vec3(0, 0, 0);
+        upVector       = glm::vec3(0, 1, 0);
+
+        viewmatrix = glm::lookAt(cameraPosition, cameraTarget, upVector);
+
+        projectionmatrix = glm::perspective(glm::radians(65.0f), static_cast<float>(4.0f / 3.0f), 0.1f, 50.0f);
+
         glm::mat4 modelmatrix = glm::mat4(1.0f);
-        camera = glm::vec3(0, 0, 3);
-        /* viewmatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)); */
-        viewmatrix = glm::lookAt(
-                                glm::vec3(0,0,3), // Camera is at (4,3,-3), in World Space
-                                glm::vec3(0,0,0), // and looks at the origin
-                                glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-                           );
-        projectionmatrix = glm::perspective(glm::radians(45.0f), static_cast<float>(800.0f / 600.0f), 0.1f, 20.0f);
         glm::mat4 mvp = projectionmatrix * viewmatrix * modelmatrix;
 
         m_shader.CreateShader();
@@ -78,6 +79,11 @@ namespace tests
         glDepthFunc(GL_LESS);
     }
 
+    ColoredCube::~ColoredCube()
+    {
+        glDisable(GL_DEPTH_TEST);
+    }
+
     void ColoredCube::OnRender()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -85,12 +91,9 @@ namespace tests
         m_shader.Bind();
         m_vao.Bind();
         {
+            viewmatrix = glm::lookAt(cameraPosition, cameraTarget, upVector);
+
             glm::mat4 modelmatrix = glm::translate(glm::mat4(1.0f), translationmatrix);
-            viewmatrix = glm::lookAt(
-                                    camera,
-                                    glm::vec3(0,0,0), // and looks at the origin
-                                    glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-                               );
             glm::mat4 mvp = projectionmatrix * viewmatrix * modelmatrix;
             m_shader.SetUniformMat4f("u_MVP", mvp);
 
@@ -101,6 +104,8 @@ namespace tests
     void ColoredCube::OnImGuiRender()
     {
         ImGui::SliderFloat3("Translation", &translationmatrix.x, -4.0f, 4.0f);
-        ImGui::SliderFloat3("Camera", &camera.x, -4.0f, 4.0f);
+        ImGui::SliderFloat3("CameraPosition", &cameraPosition.x, -4.0f, 4.0f);
+        ImGui::SliderFloat3("CameraTarget", &cameraTarget.x, -4.0f, 4.0f);
+        ImGui::SliderFloat3("upVector", &upVector.x, -4.0f, 4.0f);
     }
 }

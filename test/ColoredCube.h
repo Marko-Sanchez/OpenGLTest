@@ -20,10 +20,14 @@ namespace tests
         glm::mat4 viewmatrix;
         glm::mat4 projectionmatrix;
         glm::vec3 translationmatrix;
-        glm::vec3 camera;
+
+        glm::vec3 cameraPosition;
+        glm::vec3 cameraTarget;
+        glm::vec3 upVector;
 
         public:
         ColoredCube();
+        ~ColoredCube();
 
         void OnRender() override;
         void OnImGuiRender() override;
