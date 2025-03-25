@@ -21,17 +21,22 @@ namespace tests
             {{-0.5f, 0.5f}, {0.0f, 1.0f},  0},// 3
 
 
-            {{0.5f, -0.5f}, {0.0f, 0.0f},  1},// 0: vertex position (x,y), texture position (a, b), texIndex
-            {{1.0f, -0.5f}, {1.0f, 0.0f},  1},// 1
-            {{1.0f, 0.5f},  {1.0f, 1.0f},  1},// 2
-            {{0.5f, 0.5f}, {0.0f,  1.0f},  1}// 3
+            {{0.5f, -0.5f}, {0.0f, 0.0f},  1},// 4: vertex position (x,y), texture position (a, b), texIndex
+            {{1.0f, -0.5f}, {1.0f, 0.0f},  1},// 5
+            {{1.0f, 0.5f},  {1.0f, 1.0f},  1},// 6
+            {{0.5f, 0.5f}, {0.0f,  1.0f},  1},// 7
+
+            {{-0.5f, -0.5f}, {0.0f, 0.0f}, 2},// 8: vertex position (x,y), texture position (a, b), texIndex
+            {{0.5f, -0.5f}, {1.0f, 0.0f},  2},// 9
+            {{0.5f, 0.5f},  {1.0f, 1.0f},  2},// 10
+            {{-0.5f, 0.5f}, {0.0f, 1.0f},  2},// 11
         };
 
         const std::vector<unsigned int> indexBuffer =
         {
             0, 1, 2, 2, 3, 0,
             4, 5, 6, 6, 7, 4,
-            0, 1, 2, 2, 3, 0
+            8, 9, 10, 10, 11, 8
         };
 
         m_vao.Bind();
@@ -56,18 +61,17 @@ namespace tests
         m_viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0, 0));
 
 
-        int textureSampler[] = {0 , 1};
-        m_shader.SetUniform1iv("u_Textures", 2, textureSampler);
+        int textureSampler[] = {0 , 1, 2};
+        m_shader.SetUniform1iv("u_Textures", 3, textureSampler);
 
-        m_texture.UploadTexture("cheese1", "../res/images/cheese.png", 0);
+        m_texture.UploadTexture("cheese", "../res/images/cheese.png", 0);
         m_textureTranslations.emplace_back("cheese1", glm::vec3(0.5f, 0.5f, 0.0f));
 
         m_texture.UploadTexture("nacho", "../res/images/nachowink.png", 1);
         m_textureTranslations.emplace_back("nacho", glm::vec3(0.0f, 0.0f, 0.0f));
 
-        // uses first quadrants indeces, and a different matrix transformation.
-        m_texture.UploadTexture("cheese2", "../res/images/cheese.png", 0);
-        m_textureTranslations.emplace_back("cheese2", glm::vec3(0.0f, 0.0f, 0.0f));
+        m_texture.UploadTexture("dirt", "../res/images/mc.png", 2);
+        m_textureTranslations.emplace_back("dirt", glm::vec3(0.0f, 0.0f, 0.0f));
     }
 
     void MultiTexture::OnRender()
