@@ -65,7 +65,7 @@ namespace tests
         m_shader.SetUniform1iv("u_Textures", 3, textureSampler);
 
         m_texture.UploadTexture("cheese", "../res/images/cheese.png", 0);
-        m_textureTranslations.emplace_back("cheese1", glm::vec3(0.5f, 0.5f, 0.0f));
+        m_textureTranslations.emplace_back("cheese", glm::vec3(0.5f, 0.5f, 0.0f));
 
         m_texture.UploadTexture("nacho", "../res/images/nachowink.png", 1);
         m_textureTranslations.emplace_back("nacho", glm::vec3(0.0f, 0.0f, 0.0f));
