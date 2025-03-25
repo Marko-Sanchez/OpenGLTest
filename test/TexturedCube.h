@@ -21,6 +21,9 @@ private:
     };
 
 
+    Shaders m_shader;
+    Texture m_texture;
+
     std::unique_ptr<Shaders> uptrShader;
     std::unique_ptr<Texture> uptrTexture;
 

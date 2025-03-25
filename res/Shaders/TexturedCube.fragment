@@ -1,0 +1,13 @@
+#version 330 core
+
+in vec2 tcords;
+
+out vec4 out_data;
+
+uniform sampler2D text;
+
+void main()
+{
+    out_data = texture(text, tcords);
+    //out_data = vec4(1.0, 1.0, 1.0, 1.0);
+}
