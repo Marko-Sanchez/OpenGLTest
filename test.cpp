@@ -21,6 +21,7 @@
 #include "BatchRendering.h"
 #include "RawTexture.h"
 #include "ColoredCube.h"
+#include "TexturedCube.h"
 
 int main(void)
 {
@@ -35,7 +36,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create a windowed mode window and its OpenGL context.
-    window = glfwCreateWindow(1280, 640, "OpenGL Test World", NULL, NULL);
+    window = glfwCreateWindow(1280, 1280, "OpenGL Test World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -73,6 +74,7 @@ int main(void)
     testMenu->RegisterTest<tests::BatchRendering>("Batch Rendering");
     testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
     testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
+    testMenu->RegisterTest<tests::TexturedCube>("Textured Cube");
 
     Renderer renderer;
 
