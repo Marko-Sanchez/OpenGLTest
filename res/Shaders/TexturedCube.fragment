@@ -1,13 +1,12 @@
 #version 330 core
 
-in vec2 tcords;
+out vec4 o_Color;
 
-out vec4 out_data;
+in vec2 v_TexCord;
 
-uniform sampler2D text;
+uniform sampler2D u_texture;
 
 void main()
 {
-    out_data = texture(text, tcords);
-    //out_data = vec4(1.0, 1.0, 1.0, 1.0);
+    o_Color = texture(u_texture, v_TexCord);
 }
