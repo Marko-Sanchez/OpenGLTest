@@ -3,6 +3,9 @@
 #include "Test.h"
 
 #include "GL/glew.h"
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 #include "glm/glm.hpp"
 
 #include "Shaders.h"
@@ -20,16 +23,14 @@ private:
         glm::vec2 tcords;
     };
 
+    int m_numIndices;
 
     Shaders m_shader;
     Texture m_texture;
 
-    std::unique_ptr<Shaders> uptrShader;
-    std::unique_ptr<Texture> uptrTexture;
-
-    unsigned int m_vao;
-    unsigned int m_vbo;
-    unsigned int m_ibo;
+    VertexArray m_vao;
+    VertexBuffer m_vbo;
+    IndexBuffer m_ibo;
 
 public:
     TexturedCube();

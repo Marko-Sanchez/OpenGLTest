@@ -5,8 +5,9 @@
 #include "glm/fwd.hpp"
 #include "glm/trigonometric.hpp"
 
+#include <GLFW/glfw3.h>
+#include <cmath>
 #include <cstddef>
-#include <memory>
 #include <vector>
 
 namespace tests
@@ -14,140 +15,96 @@ namespace tests
 TexturedCube::TexturedCube()
 :m_shader("../res/Shaders/TexturedCube.vertex", "../res/Shaders/TexturedCube.fragment")
 {
-    /* const std::vector<Vertex> vertices = */
-    /* { */
-    /*     {{-0.5,  0.5, -5.0}, {0, 1}}, */
-    /*     {{-0.5, -0.5, -5.0}, {0, 0}}, */
-    /*     {{ 0.5, -0.5, -5.0}, {1, 0}}, */
-    /*     {{ 0.5,  0.5, -5.0}, {1, 1}}, */
-
-
-    /*     {{-0.5,  0.5, -10.0}, {0, 1}}, */
-    /*     {{-0.5, -0.5, -10.0}, {0, 0}}, */
-    /*     {{ 0.5, -0.5, -10.0}, {1, 0}}, */
-    /*     {{ 0.5,  0.5, -10.0}, {1, 1}}, */
-    /* }; */
-
-    /* const std::vector<GLuint> indices = */
-    /* { */
-    /*     // first face */
-    /*     0, 1, 2, 2, 3, 0, */
-    /*     // back face */
-    /*     4, 5, 6, 6, 7, 4, */
-    /*     // bottom face */
-    /*     1, 2, 6, 6, 5, 1, */
-    /*     // top face */
-    /*     0, 3, 7, 7, 4, 0, */
-    /*     // left-side face */
-    /*     0, 4, 5, 5, 1, 0, */
-    /*     //right-side face */
-    /*     3, 7, 6, 6, 2, 3 */
-    /* }; */
-
+    // higher the -z the further / smaller from the screen the square is.
     const std::vector<Vertex> vertices =
     {
-            {{-0.5, 0.5, 0}, {0, 1}}, {{-0.5, -0.5, 0}, {0, 0}},
-            {{0.5, -0.5, 0}, {1, 0}}, {{0.5, 0.5, 0}, {1, 1}}
+            //front-face
+            {{-0.5, -0.5, -5.0}, {0.0f, 0.0f}}, // 0: bottom-left
+            {{0.5, -0.5, -5.0}, {1.0f, 0.0f}},  // 1
+            {{0.5, 0.5, -5.0}, {1.0f, 1.0f}},   // 2
+            {{-0.5, 0.5, -5.0}, {0.0f, 1.0f}},  // 3
+            // back-face
+            {{-0.5, -0.5, -6.0}, {0.0f, 0.0f}}, // 4: bottom-left
+            {{0.5, -0.5, -6.0}, {1.0f, 0.0f}},  // 5
+            {{0.5, 0.5, -6.0}, {1.0f, 1.0f}},   // 6
+            {{-0.5, 0.5, -6.0}, {0.0f, 1.0f}},  // 7
     };
 
     const std::vector<unsigned int> indices =
     {
-        0, 1, 2, 2, 3, 0
-        /* 1, 2, 3, 3, 0, 1 */
+        // front face
+        0, 1, 2, 2, 3, 0,
+        // back face
+        4, 5, 6, 6, 7, 4,
+        // bottom face
+        0, 1, 5, 5, 4, 0,
+        // top face
+        3, 2, 6, 6, 7, 3,
+        // right face
+        1, 5, 6, 6, 2, 1,
+        // left face
+        0, 4, 7, 7, 3, 0
     };
 
+    m_numIndices = indices.size();
 
-    GLuint vaoName;
-    glGenVertexArrays(1, &vaoName);
-    glBindVertexArray(vaoName);
+    m_vao.Bind();
+    m_vbo.Bind();
+    m_vbo.CreateBuffer(vertices);
 
-    GLuint vboName;
-    glGenBuffers(1, &vboName);
-    glBindBuffer(GL_ARRAY_BUFFER, vboName);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-
-    GLuint iboName;
-    glGenBuffers(1, &iboName);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboName);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
-
-    m_vao = vaoName;
-    m_vbo = vboName;
-    m_ibo = iboName;
+    m_ibo.Bind();
+    m_ibo.CreateBuffer(indices);
 
     // Define how the data is formatted
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, pos)));
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, tcords)));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    /* uptrShader = std::make_unique<Shaders>("../res/Shaders/TexturedCube.vertex", "../res/Shaders/TexturedCube.fragment"); */
-    /* uptrShader->CreateShader(); */
-    /* uptrShader->Bind(); */
-    /* uptrShader->SetUniform1i("text", 1); */
-    /* uptrShader->SetUniformMat4f("u_mvp", CalculateMVP()); */
+    m_vao.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, pos)));
+    m_vao.AddAttribute(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, tcords)));
 
     m_shader.CreateShader();
     m_shader.Bind();
-    m_shader.SetUniform1i("text", 1);
 
-    /* uptrTexture = std::make_unique<Texture>(); */
-    /* auto tName = uptrTexture->UploadTexture("mc", "../res/images/mc.png", 1); */
-    /* uptrTexture->Bind("mc"); */
+    m_shader.SetUniformMat4f("u_mvp", CalculateMVP());
+    m_shader.SetUniform1i("u_texture", 1);
+
     m_texture.UploadTexture("dirt", "../res/images/mc.png", 1);
     m_texture.Bind("dirt");
+    m_texture.UnBind();
 
-    /* glActiveTexture(GL_TEXTURE1); */
-    /* glBindTexture(GL_TEXTURE_2D, tName); */
-
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        std::cerr << "OpenGL Error: " << err << std::endl;
-    }
-
-    // depth test was doing something to not have square show
-    /* glEnable(GL_DEPTH_TEST); */
-    /* glDepthFunc(GL_LESS); */
-    /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    /* glEnable(GL_CULL_FACE); */
+    /* glFrontFace(GL_CW); */
+    /* glCullFace(GL_BACK); */
 }
 
 TexturedCube::~TexturedCube()
-{
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
-    glDeleteBuffers(1, &m_ibo);
-
-    glDisable(GL_DEPTH_TEST);
-}
+{}
 
 glm::mat4 TexturedCube::CalculateMVP()
 {
-    glm::mat4 model(1.0f);
-    glm::mat4 view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,5,0));
-    glm::mat4 proj = glm::perspective(glm::radians(65.0f), static_cast<float>(4.0f/3.0f), 0.5f, 100.0f);
+    float angle{static_cast<float>(glfwGetTime())};
+
+    glm::mat4 model(glm::mat4(1.0f));
+    model = glm::rotate(model, glm::radians(angle * 50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, -1.0), glm::vec3(0, 1.0, 0));
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f);
 
     return proj * view * model;
 }
 
 void TexturedCube::OnRender()
 {
-    /* glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); */
-    /* glEnable(GL_DEPTH_TEST); */
-    /* glDisable(GL_CULL_FACE); */
+    /* glClear(GL_COLOR_BUFFER_BIT); */
 
-    /* uptrShader->Bind(); */
+    {
     m_shader.Bind();
-    glBindVertexArray(m_vao);
-    {
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    m_vao.Bind();
+
+    m_texture.Bind("dirt");
+    m_shader.SetUniformMat4f("u_mvp", CalculateMVP());
+    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr);
     }
 
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
+    if (GLenum err = glGetError(); err != GL_NO_ERROR)
         std::cerr << "OpenGL Error: " << err << std::endl;
-    }
 }
 }// namespace tests
