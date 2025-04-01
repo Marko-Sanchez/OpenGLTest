@@ -17,9 +17,9 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-    for(auto& i: m_textures)
+    for(const auto&[textureName, textureSlot]: m_textures)
     {
-        glDeleteTextures(1, &i.second.first);
+        glDeleteTextures(1, &textureSlot.first);
     }
 }
 
