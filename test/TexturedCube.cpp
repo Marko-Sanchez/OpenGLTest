@@ -62,48 +62,49 @@ TexturedCube::TexturedCube()
     m_shader.CreateShader();
     m_shader.Bind();
 
-    m_shader.SetUniformMat4f("u_mvp", CalculateMVP());
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f);
+
+    glm::vec3 cameraPosition(0.0f, 0.0f, 10.0f);
+    glm::vec3 cameraTarget(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+
+    glm::mat4 view = glm::lookAt(cameraPosition, cameraTarget, cameraUp);
+    m_shader.SetUniformMat4f("u_viewproj", proj * view);
     m_shader.SetUniform1i("u_texture", 1);
 
     m_texture.UploadTexture("dirt", "../res/images/mc.png", 1);
     m_texture.Bind("dirt");
     m_texture.UnBind();
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable(GL_DEPTH_TEST);
+    /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
     /* glEnable(GL_CULL_FACE); */
     /* glFrontFace(GL_CW); */
     /* glCullFace(GL_BACK); */
 }
-
-TexturedCube::~TexturedCube()
-{}
 
 glm::mat4 TexturedCube::CalculateMVP()
 {
     float angle{static_cast<float>(glfwGetTime())};
 
     glm::mat4 model(glm::mat4(1.0f));
-    model = glm::rotate(model, glm::radians(angle * 50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(angle * 50.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, -1.0), glm::vec3(0, 1.0, 0));
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f);
-
-    return proj * view * model;
+    return model;
 }
 
 void TexturedCube::OnRender()
 {
-    /* glClear(GL_COLOR_BUFFER_BIT); */
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    {
     m_shader.Bind();
     m_vao.Bind();
 
     m_texture.Bind("dirt");
-    m_shader.SetUniformMat4f("u_mvp", CalculateMVP());
-    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr);
-    }
+    m_shader.SetUniformMat4f("u_model", CalculateMVP());
 
+    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr);
     if (GLenum err = glGetError(); err != GL_NO_ERROR)
         std::cerr << "OpenGL Error: " << err << std::endl;
 }

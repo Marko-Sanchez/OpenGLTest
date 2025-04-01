@@ -10,7 +10,6 @@
 
 #include "Shaders.h"
 #include "Texture.h"
-#include <memory>
 
 namespace tests
 {
@@ -34,7 +33,6 @@ private:
 
 public:
     TexturedCube();
-    ~TexturedCube();
 
     glm::mat4 CalculateMVP();
     void OnRender() override;
