@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstring>
 
-bool ModelLoader::LoadOBJ(const std::string& path, std::vector<glm::vec3>& out_vertices, std::vector<glm::vec3>& out_uvs, std::vector<glm::vec3>& out_normals)
+bool ModelLoader::LoadOBJ(const std::string& path, std::vector<glm::vec3>& out_vertices, std::vector<glm::vec2>& out_uvs, std::vector<glm::vec3>& out_normals)
 {
     const size_t HEADER_SIZE{256};
     const size_t COMMENT_BUFFER{1024};
