@@ -21,6 +21,7 @@
 #include "BatchRendering.h"
 #include "RawTexture.h"
 #include "ColoredCube.h"
+#include "Trivial3DModel.h"
 
 int main(void)
 {
@@ -73,6 +74,7 @@ int main(void)
     testMenu->RegisterTest<tests::BatchRendering>("Batch Rendering");
     testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
     testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
+    testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
 
     Renderer renderer;
 
