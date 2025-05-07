@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.10)
 project(OpenGLTest CXX)
 
 # Optimization flags based on build
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 # Set CPP Version
@@ -33,7 +33,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(test ${SOURCE} ${SRC_FILES} ${TEST_FILES})
 
 # Include the src directory for header files
-# helps shorten include path: vendors/vendor/somefile.cpp -> vendor/somefile.cpp
+# ASSIMP: the /assimp in /vendor are the header files from /assimp/install/include
 target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/vendors ${CMAKE_SOURCE_DIR}/test)
 
 # Link necessary libraries
@@ -51,6 +51,7 @@ target_link_libraries(test
     X11
     rt
     dl
+    ${CMAKE_SOURCE_DIR}/src/vendors/assimp/libassimp.a
 )
 
 # Enable pthread
