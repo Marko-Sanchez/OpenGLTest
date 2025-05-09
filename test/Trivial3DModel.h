@@ -20,6 +20,9 @@ class Trivial3DModel: public Test
     VertexBuffer m_vbo;
     VertexBuffer m_uvs;
 
+    glm::mat4 projectionMatrix;
+    glm::mat4 modelMatrix;
+
     public:
     Trivial3DModel();
 
