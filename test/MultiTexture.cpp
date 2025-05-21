@@ -79,7 +79,7 @@ namespace tests
         m_shader.Bind();
         m_vao.Bind();
 
-        for(int i{0}; i < m_textureTranslations.size(); ++i)
+        for(size_t i{0}; i < m_textureTranslations.size(); ++i)
         {
             glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i].translation);
             glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
@@ -95,7 +95,7 @@ namespace tests
     void MultiTexture::OnImGuiRender()
     {
         std::string name{"translation A"};
-        for(int i {0}; i < m_textureTranslations.size(); ++i)
+        for(size_t i {0}; i < m_textureTranslations.size(); ++i)
         {
             name.back() = static_cast<char>('A' + i);
             ImGui::SliderFloat2(name.c_str(), &m_textureTranslations[i].translation.x, -1.5f, 1.5f);

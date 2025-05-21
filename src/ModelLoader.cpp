@@ -73,7 +73,7 @@ bool ModelLoader::LoadOBJ(const std::string& path, std::vector<glm::vec3>& out_v
         }
     }// while.
 
-    for (auto i{0}; i < vertexIndices.size(); ++i)
+    for (size_t i{0}; i < vertexIndices.size(); ++i)
     {
         auto vertexIndex{vertexIndices[i]};
         auto uvIndex{uvIndices[i]};
