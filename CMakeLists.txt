@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.10)
 project(OpenGLTest CXX)
 
 # Optimization flags based on build
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 # Set CPP Version

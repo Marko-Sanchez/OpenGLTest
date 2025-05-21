@@ -3,11 +3,13 @@
 #include "Test.h"
 
 #include "GL/glew.h"
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 #include "glm/glm.hpp"
 
 #include "Shaders.h"
 #include "Texture.h"
-#include <memory>
 
 namespace tests
 {
@@ -20,19 +22,21 @@ private:
         glm::vec2 tcords;
     };
 
+    int m_numIndices;
 
-    std::unique_ptr<Shaders> uptrShader;
-    std::unique_ptr<Texture> uptrTexture;
+    Shaders m_shader;
+    Texture m_texture;
 
-    unsigned int m_vao;
-    unsigned int m_vbo;
-    unsigned int m_ibo;
+    VertexArray m_vao;
+    VertexBuffer m_vbo;
+    IndexBuffer m_ibo;
+
+    glm::mat4 projectionMatrix;
+    glm::mat4 modelMatrix;
 
 public:
     TexturedCube();
-    ~TexturedCube();
 
-    glm::mat4 CalculateMVP();
     void OnRender() override;
 };
 }
