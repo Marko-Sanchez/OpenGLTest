@@ -25,13 +25,15 @@ namespace tests
     class TestMenu: public Test
     {
         private:
+        // Pointer to window context, to be shared with tests.
+        std::shared_ptr<void> g_window;
         // Reference to a ptr outside this class, current drawn test is updated via this variable
         // in OnImGuiRender.
         std::shared_ptr<Test>& m_currentTest;
         std::vector<std::pair<std::string, std::function<std::shared_ptr<Test>()>>> m_tests;
 
         public:
-        TestMenu(std::shared_ptr<Test>& currentTestPointer);
+        TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer);
 
         void OnImGuiRender() override;
 

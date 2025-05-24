@@ -3,16 +3,16 @@
 
 namespace tests
 {
-    TestMenu::TestMenu(std::shared_ptr<Test>& currentTestPointer)
-    : m_currentTest(currentTestPointer)
+    TestMenu::TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer)
+    : g_window(window), m_currentTest(currentTestPointer)
     {}
 
     void TestMenu::OnImGuiRender()
     {
-        for (auto& test: m_tests)
+        for (auto& [name, test]: m_tests)
         {
-            if (ImGui::Button(test.first.c_str()))
-                m_currentTest = test.second();
+            if (ImGui::Button(name.c_str()))
+                m_currentTest = test();
         }
     }
 }

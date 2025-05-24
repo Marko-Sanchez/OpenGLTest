@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
-#include <ostream>
 #include <string>
 #include <memory>
 
@@ -25,7 +24,7 @@
 int main(void)
 {
     constexpr int WINDOW_WIDTH{1280};
-    constexpr int WINDOW_HEIGHT{1260};
+    constexpr int WINDOW_HEIGHT{1280};
 
     // Initialize the library.
     if (!glfwInit())
@@ -38,7 +37,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create a windowed mode window and its OpenGL context.
-    std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> window(
+    std::shared_ptr<GLFWwindow> window(
         glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Test World", NULL, NULL), glfwDestroyWindow);
 
     if (!window)
@@ -70,7 +69,7 @@ int main(void)
     ImGui::StyleColorsDark();
 
     std::shared_ptr<tests::Test> currentTest;
-    std::shared_ptr<tests::TestMenu> testMenu = std::make_shared<tests::TestMenu>(currentTest);
+    std::shared_ptr<tests::TestMenu> testMenu = std::make_shared<tests::TestMenu>(window, currentTest);
     currentTest = testMenu;
 
     testMenu->RegisterTest<tests::ClearColor>("Clear Color");
