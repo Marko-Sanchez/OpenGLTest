@@ -10,8 +10,6 @@
 #include <string>
 #include <memory>
 
-#include "Renderer.h"
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -26,18 +24,23 @@
 
 int main(void)
 {
-    GLFWwindow* window;
+    constexpr int WINDOW_WIDTH{1280};
+    constexpr int WINDOW_HEIGHT{1260};
 
     // Initialize the library.
     if (!glfwInit())
+    {
         return EXIT_FAILURE;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create a windowed mode window and its OpenGL context.
-    window = glfwCreateWindow(1280, 1280, "OpenGL Test World", NULL, NULL);
+    std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> window(
+        glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Test World", NULL, NULL), glfwDestroyWindow);
+
     if (!window)
     {
         glfwTerminate();
@@ -45,14 +48,14 @@ int main(void)
     }
 
     // Make the window's context current
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window.get());
     glfwSwapInterval(1);
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
     GLenum glewError = glewInit();
     if (GLEW_OK != glewError)
     {
-        std::cout << "Glew not Initialized" << std::endl;
+        std::cerr << "Glew not Initialized" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -62,7 +65,7 @@ int main(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
     ImGui_ImplOpenGL3_Init();
     ImGui::StyleColorsDark();
 
@@ -78,14 +81,13 @@ int main(void)
     testMenu->RegisterTest<tests::TexturedCube>("Textured Cube");
     testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
 
-    Renderer renderer;
-
     // Loop until the user closes the window.
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window.get()))
     {
         // clear and reset background.
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-        renderer.Clear();
+        // sets bitplane area (region of memory rendered as pixels) to the previous values selected by glclearcolor
+        glClear(GL_COLOR_BUFFER_BIT);
 
         currentTest->OnRender();
 
@@ -105,9 +107,9 @@ int main(void)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.get());
         glfwPollEvents();
-    }
+    }// while
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
