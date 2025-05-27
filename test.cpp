@@ -81,7 +81,7 @@ int main(void)
     testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
 
     // Loop until the user closes the window.
-    while (!glfwWindowShouldClose(window.get()))
+    while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window.get()))
     {
         // clear and reset background.
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
