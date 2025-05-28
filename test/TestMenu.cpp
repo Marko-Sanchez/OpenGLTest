@@ -12,7 +12,7 @@ namespace tests
         for (auto& [name, test]: m_tests)
         {
             if (ImGui::Button(name.c_str()))
-                m_currentTest = test();
+                m_currentTest = test(g_window);
         }
     }
 }

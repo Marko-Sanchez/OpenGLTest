@@ -3,7 +3,6 @@
 #include <functional>
 #include <string>
 #include <memory>
-#include <iostream>
 
 namespace tests
 {
@@ -12,6 +11,7 @@ namespace tests
     {
         public:
         Test(){}
+        Test(std::shared_ptr<void> window){}
         virtual ~Test(){}
 
         virtual void OnRender(){}
@@ -28,7 +28,7 @@ namespace tests
         std::shared_ptr<void> g_window;
         // Reference to a ptr outside this class, current selected test is updated via this variable.
         std::shared_ptr<Test>& m_currentTest;
-        std::vector<std::pair<std::string, std::function<std::shared_ptr<Test>()>>> m_tests;
+        std::vector<std::pair<std::string, std::function<std::shared_ptr<Test>(std::shared_ptr<void>)>>> m_tests;
 
         public:
         TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer);
@@ -39,8 +39,7 @@ namespace tests
         template<typename T>
         void RegisterTest(const std::string& name)
         {
-            std::cout << "Registering test: " << name << std::endl;
-            m_tests.push_back(std::make_pair(name, [](){return std::make_shared<T>(); }));
+            m_tests.push_back(std::make_pair(name, [](std::shared_ptr<void> g_window){return std::make_shared<T>(g_window); }));
         }
     };
 }
