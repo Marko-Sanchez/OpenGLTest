@@ -95,7 +95,7 @@ int main(void)
         ImGui::NewFrame();
         {
             ImGui::Begin("Test Menu");
-            if (currentTest != testMenu && ImGui::Button("<-"))
+            if (currentTest != testMenu && (ImGui::Button("<-") || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
             {
                 currentTest = testMenu;
             }
