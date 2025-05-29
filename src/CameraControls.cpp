@@ -1,91 +1,101 @@
 #include "CameraControls.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/trigonometric.hpp"
 
 #include <GLFW/glfw3.h>
 
-Camera::Camera() noexcept
-:horizontalAngle_m(3.14f), verticalAngle_m(0.0f), initialFov_m(65.0f), speed_m(3.0f), mouseSpeed_m(0.005f),
- position_m(std::move(glm::vec3(0, 0, 5)))
-{}
-
-void Camera::ComputeMatricesFromInputs(std::shared_ptr<GLFWwindow> window)
+Camera::Camera()
+:m_yawAngle(-90.0f), m_pitchAngle(0.0f), m_cameraSpeed(3.0f), m_mouseSensitivty(0.001f),
+ m_worldUp(std::move(glm::vec3(0.0f, 1.0f, 0.0f))),
+ m_cameraPosition(std::move(glm::vec3(0.0f, 0.0f, 5.0f)))
 {
-    static double lastTime = glfwGetTime();
-    double currentTime{glfwGetTime()};
+    UpdateCameraVectors();
+}
 
+/*
+ * Calculates camera front (direction camera is facing) from pitch and yaw.
+ * Followed by camera right and camera up.
+ */
+void Camera::UpdateCameraVectors()
+{
+    // Yaw Angles (left-right): x: cos (yaw), z: sin (yaw)
+    // Pitch Angles (up-down): x: cos (pitch), y: sin (pitch)
+    glm::vec3 front (
+        cos(glm::radians(m_yawAngle)) * cos(glm::radians(m_pitchAngle)),
+        sin(glm::radians(m_pitchAngle)),
+        sin(glm::radians(m_yawAngle)) * cos(glm::radians(m_pitchAngle))
+    );
+    m_cameraFront = glm::normalize(front);
+
+    m_cameraRight = glm::normalize(glm::cross(m_cameraFront, m_worldUp));
+    m_cameraUp    = glm::normalize(glm::cross(m_cameraRight, m_cameraFront));
+}
+
+/*
+ * Updates camera position from camera movement. Invoked from a function that handles
+ * system keyboard input (glfwGetKey).
+ *
+ * @params
+ * {CAMERA_MOVEMENT} cameramovement: camera movement.
+ * {float} deltaTime: difference in time between last frame and current frame.
+ */
+void Camera::ProcessKeyboardInput(CAMERA_MOVEMENT cameramovement, float deltaTime)
+{
     // helps balance slow (larger delta) and fast fps (smaller delta) computers.
-    float deltaTime{static_cast<float>(currentTime - lastTime)};
+    float movementSpeed{deltaTime * m_cameraSpeed};
 
-    int WINDOW_WIDTH, WINDOW_HEIGHT;
-    double xpos, ypos;
-
-    glfwGetWindowSize(window.get(), &WINDOW_WIDTH, &WINDOW_HEIGHT);
-    glfwGetCursorPos(window.get(), &xpos, &ypos);
-    glfwSetCursorPos(window.get(), static_cast<double>(WINDOW_WIDTH) / 2, static_cast<double>(WINDOW_HEIGHT) / 2);
-
-    horizontalAngle_m += mouseSpeed_m * (static_cast<float>(WINDOW_WIDTH) / 2 - xpos);
-    verticalAngle_m   += mouseSpeed_m * (static_cast<float>(WINDOW_HEIGHT) / 2 - ypos);
-
-    // Direction: Spherical coordinates to Cartesian coordinates conversion
-    glm::vec3 direction(
-        cos(verticalAngle_m) * sin(horizontalAngle_m),
-        sin(verticalAngle_m),
-        cos(verticalAngle_m) * cos(verticalAngle_m)
-    );
-
-   // Right vector
-   glm::vec3 right(
-        sin(horizontalAngle_m - 3.14f / 2.0f),
-        0,
-        cos(horizontalAngle_m - 3.14f / 2.0f)
-    );
-
-    // Up vector
-    glm::vec3 up = glm::cross(right, direction);
-
-    // Move forward
-    if (glfwGetKey(window.get(), GLFW_KEY_UP) == GLFW_PRESS)
+    if (cameramovement == CAMERA_MOVEMENT::FORWARD)
     {
-        position_m += direction * (deltaTime * speed_m);
+        m_cameraPosition += m_cameraFront * movementSpeed;
     }
-
-    // Move backward
-    if (glfwGetKey(window.get(), GLFW_KEY_DOWN) == GLFW_PRESS)
+    if (cameramovement == CAMERA_MOVEMENT::BACKWARD)
     {
-        position_m -= direction * (deltaTime * speed_m);
+        m_cameraPosition -= m_cameraFront * movementSpeed;
     }
-
-    // Strafe right
-    if (glfwGetKey(window.get(), GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (cameramovement == CAMERA_MOVEMENT::RIGHT)
     {
-        position_m += right * (deltaTime * speed_m);
+        m_cameraPosition += glm::normalize(m_cameraRight) * movementSpeed;
     }
-
-    // Strafe left
-    if (glfwGetKey(window.get(), GLFW_KEY_LEFT) == GLFW_PRESS)
+    if (cameramovement == CAMERA_MOVEMENT::LEFT)
     {
-        position_m -= right * (deltaTime * speed_m);
+        m_cameraPosition -= glm::normalize(m_cameraRight) * movementSpeed;
     }
-
-    // Projection matrix: 45* Field of View, 4:3 ratio, display range:
-    projectionMatrix_m = glm::perspective(glm::radians(initialFov_m), 4.0f/3.0f, 0.1f, 50.0f);
-
-    viewMatrix_m = glm::lookAt(
-        position_m,
-        position_m + direction,
-        up
-    );
-
-    lastTime = currentTime;
 }
 
-glm::mat4 Camera::GetProjectionMatrix() const noexcept
+/*
+* Handles camera angles pitch (up/down) and yaw (left/right). Limits
+* camera pitch to avoid issues with glm::lookAt at angles above 90 degrees and
+* angles below -90 degrees. Invoked from mouse callback function.
+*
+* @params
+* {float} xoffset: mouse x value offset from center of window.
+* {float} yoffset: mouse y value offset from center of window.
+*/
+void Camera::ProcessMouseMovement(float xoffset, float yoffset)
 {
-    return projectionMatrix_m;
+    xoffset *= m_mouseSensitivty;
+    yoffset *= m_mouseSensitivty;
+
+    m_yawAngle += xoffset;
+    m_pitchAngle += yoffset;
+
+    // Avoid glm::lookAt() flip that occurs at 90*.
+    if (m_pitchAngle > 89.0f)
+    {
+        m_pitchAngle = 89.0f;
+    }
+    else if (m_pitchAngle < -89.0f)
+    {
+        m_pitchAngle = -89.0f;
+    }
+    UpdateCameraVectors();
 }
 
-glm::mat4 Camera::GetViewMatrix() const noexcept
+/*
+* Returns view matrix.
+*/
+glm::mat4 Camera::GetViewMatrix() const
 {
-    return viewMatrix_m;
+    return glm::lookAt(m_cameraPosition, m_cameraPosition + m_cameraFront, m_cameraUp);
 }

@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-// Freindlier way to convey where user wants to move camera, avoids invoking window-context in Camera class.
+// Friendlier way to convey where user wants to move camera, avoids invoking window-context in Camera class.
 enum CAMERA_MOVEMENT
 {
     FORWARD,
@@ -37,7 +37,7 @@ private:
 public:
     Camera();
 
-    void ProcessKeyboard(CAMERA_MOVEMENT cameramovement, float deltaTime);
+    void ProcessKeyboardInput(CAMERA_MOVEMENT cameramovement, float deltaTime);
     void ProcessMouseMovement(float xoffset, float yoffset);
 
     glm::mat4 GetViewMatrix() const;
