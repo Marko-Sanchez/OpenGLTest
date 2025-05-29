@@ -10,7 +10,7 @@
 
 namespace tests
 {
-    MultiTexture::MultiTexture()
+    MultiTexture::MultiTexture(std::shared_ptr<void> window)
     :m_shader("../res/Shaders/Multiple.vertex", "../res/Shaders/Multiple.fragment")
     {
         const std::vector<Vertex> vec =

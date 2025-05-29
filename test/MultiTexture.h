@@ -47,7 +47,7 @@ namespace tests
             std::vector<TextureInfo> m_textureTranslations;
 
         public:
-            MultiTexture();
+            MultiTexture(std::shared_ptr<void> window);
 
             void OnRender() override;
             void OnImGuiRender() override;

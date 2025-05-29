@@ -8,7 +8,7 @@
 
 namespace tests
 {
-    BatchRendering::BatchRendering()
+    BatchRendering::BatchRendering(std::shared_ptr<void> window)
     :m_shader("../res/Shaders/Rectangle.vertex", "../res/Shaders/Rectangle.fragment")
     {
         const std::vector<float> vertices =

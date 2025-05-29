@@ -6,7 +6,7 @@
 namespace tests
 {
 
-RawTexture::RawTexture()
+RawTexture::RawTexture(std::shared_ptr<void> window)
 :m_shader("../res/Shaders/Raw.vertex","../res/Shaders/Raw.fragment")
 {
     const std::vector<Vertex> vertices =

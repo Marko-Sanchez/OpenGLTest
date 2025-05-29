@@ -28,7 +28,7 @@ namespace tests
         glm::vec3 m_translationMatrix;
 
         public:
-        BatchRendering();
+        BatchRendering(std::shared_ptr<void> window);
 
         void OnRender() override;
         void OnImGuiRender() override;

@@ -25,7 +25,7 @@ namespace tests
         GLuint m_vao;
 
         public:
-        RawTexture();
+        RawTexture(std::shared_ptr<void> window);
         ~RawTexture();
 
         void OnRender() override;

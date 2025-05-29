@@ -11,7 +11,7 @@
 namespace tests
 {
 
-Trivial3DModel::Trivial3DModel()
+Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
 :m_shader("../res/Shaders/3DModelTrivial.vertex", "../res/Shaders/3DModelTrivial.fragment")
 {
     Debugger dbg;
@@ -26,7 +26,7 @@ Trivial3DModel::Trivial3DModel()
     std::vector<glm::vec3> normals;
 
     ModelLoader mdl;
-    auto res = mdl.LoadOBJ("../res/3dmodels/cube.obj", vertices, uvs, normals);
+    mdl.LoadOBJ("../res/3dmodels/cube.obj", vertices, uvs, normals);
 
     m_vao.Bind();
 

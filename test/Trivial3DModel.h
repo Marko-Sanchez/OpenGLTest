@@ -24,7 +24,7 @@ class Trivial3DModel: public Test
     glm::mat4 modelMatrix;
 
     public:
-    Trivial3DModel();
+    Trivial3DModel(std::shared_ptr<void> window);
 
     void OnRender() override;
 };
