@@ -12,7 +12,7 @@
 
 namespace tests
 {
-TexturedCube::TexturedCube()
+TexturedCube::TexturedCube(std::shared_ptr<void> window)
 :m_shader("../res/Shaders/TexturedCube.vertex", "../res/Shaders/TexturedCube.fragment")
 {
     // higher the -z the further / smaller from the screen the square is.

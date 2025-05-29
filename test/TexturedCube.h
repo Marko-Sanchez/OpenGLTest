@@ -2,6 +2,8 @@
 
 #include "Test.h"
 
+#include <iostream>
+
 #include "GL/glew.h"
 #include "VertexArray.h"
 #include "VertexBuffer.h"
@@ -35,7 +37,7 @@ private:
     glm::mat4 modelMatrix;
 
 public:
-    TexturedCube();
+    TexturedCube(std::shared_ptr<void> window);
 
     void OnRender() override;
 };
