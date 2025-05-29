@@ -4,26 +4,41 @@
 #include "glm/fwd.hpp"
 
 #include <GLFW/glfw3.h>
-#include <memory>
 
+// Freindlier way to convey where user wants to move camera, avoids invoking window-context in Camera class.
+enum CAMERA_MOVEMENT
+{
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
+/*
+*
+* @ref: https://learnopengl.com/Getting-started/Camera
+*/
 class Camera
 {
 private:
-    float horizontalAngle_m;
-    float verticalAngle_m;
-    float initialFov_m;
-    float speed_m;
-    float mouseSpeed_m;
+    float m_yawAngle; // default angle -90.0f points towards -z-axis, value closer to 0 points to +x-axis (right).
+    float m_pitchAngle;
+    float m_cameraSpeed;
+    float m_mouseSensitivty;
 
-    glm::mat4 viewMatrix_m;
-    glm::mat4 projectionMatrix_m;
+    glm::vec3 m_worldUp;
 
-    glm::vec3 position_m;
+    glm::vec3 m_cameraPosition;
+    glm::vec3 m_cameraFront;
+    glm::vec3 m_cameraUp;
+    glm::vec3 m_cameraRight; // camerafront x cameraup
+
+    void UpdateCameraVectors();
 public:
-    Camera() noexcept;
+    Camera();
 
-    void ComputeMatricesFromInputs(std::shared_ptr<GLFWwindow> window);
+    void ProcessKeyboard(CAMERA_MOVEMENT cameramovement, float deltaTime);
+    void ProcessMouseMovement(float xoffset, float yoffset);
 
-    glm::mat4 GetProjectionMatrix() const noexcept;
-    glm::mat4 GetViewMatrix() const noexcept;
+    glm::mat4 GetViewMatrix() const;
 };
