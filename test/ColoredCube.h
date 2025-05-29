@@ -18,27 +18,24 @@ namespace tests
     class ColoredCube: public Test
     {
         private:
+        float m_lastFrameTime;
+
+        std::shared_ptr<GLFWwindow> m_window;
+
         Shaders      m_shader;
         VertexArray  m_vao;
         IndexBuffer  m_ibo;
         VertexBuffer m_vbo;
         Camera       m_camera;
 
-        std::shared_ptr<GLFWwindow> m_window;
-
         glm::mat4 viewmatrix;
-        glm::mat4 projectionmatrix;
-        glm::vec3 translationmatrix;
-
-        glm::vec3 cameraPosition;
-        glm::vec3 cameraTarget;
-        glm::vec3 upVector;
+        glm::mat4 m_projectionMatrix;
 
         public:
         ColoredCube(std::shared_ptr<void> window);
         ~ColoredCube();
 
         void OnRender() override;
-        void OnImGuiRender() override;
+        void ProcessKeyboardInput(float deltaTime);
     };
 }
