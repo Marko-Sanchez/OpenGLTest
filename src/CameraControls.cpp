@@ -19,8 +19,8 @@ Camera::Camera()
  */
 void Camera::UpdateCameraVectors()
 {
-    // Yaw Angles (left-right): x: cos (yaw), z: sin (yaw)
-    // Pitch Angles (up-down): x: cos (pitch), y: sin (pitch)
+    // Yaw Angles (left-right): (x: cos(yaw), z: sin(yaw))
+    // Pitch Angles (up-down): (x: cos(pitch), y: sin(pitch))
     glm::vec3 front (
         cos(glm::radians(m_yawAngle)) * cos(glm::radians(m_pitchAngle)),
         sin(glm::radians(m_pitchAngle)),
