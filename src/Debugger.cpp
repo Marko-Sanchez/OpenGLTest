@@ -5,7 +5,7 @@
  * Debug helper function, function is not called directly, but from macro: GLCHECKERROR()
  * Code from: https://learnopengl.com/In-Practice/Debugging
  * */
-GLenum Debugger::glCheckError_(const char *file, int line)
+GLenum glCheckError_(const char *file, int line)
 {
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR)

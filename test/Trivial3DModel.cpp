@@ -14,8 +14,6 @@ namespace tests
 Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
 :m_shader("../res/Shaders/3DModelTrivial.vertex", "../res/Shaders/3DModelTrivial.fragment")
 {
-    Debugger dbg;
-
     // load shaders.
     m_shader.CreateShader();
     m_shader.Bind();
@@ -38,7 +36,7 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
     m_uvs.CreateBuffer(uvs);
     m_vao.AddAttribute(1, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
 
-    GLCHECKERROR(dbg);
+    GLCHECKERROR();
 
     m_numvertices = vertices.size();
     std::cout << "Num Vertices " << m_numvertices << std::endl;
@@ -54,7 +52,7 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
     );
     m_shader.SetUniformMat4f("MVP", glm::mat4(projectionMatrix * viewmatrix * modelMatrix));
 
-    GLCHECKERROR(dbg);
+    GLCHECKERROR();
 
     /* glEnable(GL_DEPTH_TEST); */
     /* glDepthFunc(GL_LESS); */
