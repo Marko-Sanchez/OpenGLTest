@@ -6,7 +6,6 @@
 
 #include "Debugger.h"
 #include <GLFW/glfw3.h>
-#include <iostream>
 
 namespace tests
 {
@@ -38,10 +37,6 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
 
     GLCHECKERROR();
 
-    m_numvertices = vertices.size();
-    std::cout << "Num Vertices " << m_numvertices << std::endl;
-    std::cout << "Num UVs " << uvs.size() << std::endl;
-
     modelMatrix = glm::mat4(1.0f);
     projectionMatrix = glm::perspective(glm::radians(65.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 
@@ -54,11 +49,11 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
 
     GLCHECKERROR();
 
-    /* glEnable(GL_DEPTH_TEST); */
-    /* glDepthFunc(GL_LESS); */
-    /* glEnable(GL_CULL_FACE); */
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
 }
 
 void Trivial3DModel::OnRender()
