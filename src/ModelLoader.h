@@ -5,6 +5,12 @@
 #include <memory>
 
 #include "vendors/glm/glm.hpp"
+
+/*
+* Handles loading 3D objects.
+*
+* TODO: Implement ASSIMP vendor.
+*/
 class ModelLoader
 {
     public:
