@@ -2,6 +2,21 @@
 #include <cstdio>
 #include <cstring>
 
+/*
+* Trivial custom 3D .obg loader, inspired by opengl-tutorial.org.
+*
+* @params:
+* {const char*} path: path to .obg file.
+* {vector<glm::vec3>&} out_vertices: vertex coordinates (v x y z).
+* {vector<glm::vec2>&} out_uvs: vertex texture coordinate (vt x y)
+* {vector<glm::vec3>&} out_normals: vertex normal (vn x y z).
+*
+* @note: there is a second variable in the obj file 'f' (face) which represents the 3 vertex of a triangle
+* (ex. "f a_1/b_1/c_1 a_2/b_2/c_2 a_3/b_3/c_3")
+* Where a is the index of which vertice to use, b index of which uv to use, and c which normal
+* to use.
+* @ref: https://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+*/
 bool ModelLoader::LoadOBJ(const std::string& path, std::vector<glm::vec3>& out_vertices, std::vector<glm::vec2>& out_uvs, std::vector<glm::vec3>& out_normals)
 {
     const size_t HEADER_SIZE{256};
@@ -73,6 +88,7 @@ bool ModelLoader::LoadOBJ(const std::string& path, std::vector<glm::vec3>& out_v
         }
     }// while.
 
+    // construct vertex, uv, vn now that we know which index to use from 'f'.
     for (size_t i{0}; i < vertexIndices.size(); ++i)
     {
         auto vertexIndex{vertexIndices[i]};
