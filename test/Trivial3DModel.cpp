@@ -24,6 +24,7 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
 
     ModelLoader mdl;
     mdl.LoadOBJ("../res/3dmodels/cube.obj", vertices, uvs, normals);
+    m_numvertices = vertices.size();
 
     m_vao.Bind();
 
@@ -49,11 +50,13 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
 
     GLCHECKERROR();
 
+    // enable the storing z-buffer.
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    // cull clock wise (winding order) back faces (triangles).
     glEnable(GL_CULL_FACE);
 
-    /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Trivial3DModel::OnRender()
