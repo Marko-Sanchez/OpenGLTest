@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <string>
 #include <unordered_map>
 
@@ -17,6 +18,7 @@ class Texture
     Texture();
     ~Texture();
 
+    unsigned int UploadCubeMap(const std::vector<std::string>& faces);
     unsigned int UploadTexture(const std::string& name, const std::string& imagePath, unsigned int textureSlot);
     unsigned int UploadBMP(const std::string& imagePath, unsigned int textureSlot);
 
