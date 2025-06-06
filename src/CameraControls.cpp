@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 Camera::Camera()
-:m_yawAngle(-90.0f), m_pitchAngle(0.0f), m_cameraSpeed(3.0f), m_mouseSensitivty(0.001f),
+:m_yawAngle(-90.0f), m_pitchAngle(0.0f), m_cameraSpeed(3.0f), m_mouseSensitivty(0.01f),
  m_worldUp(std::move(glm::vec3(0.0f, 1.0f, 0.0f))),
  m_cameraPosition(std::move(glm::vec3(0.0f, 0.0f, 5.0f)))
 {

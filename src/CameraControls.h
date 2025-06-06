@@ -20,9 +20,10 @@ enum CAMERA_MOVEMENT
 *
 * The different vertex coordinates that represent the camera / view space are:
 * m_cameraPosition: the position of the camera in 3D space.
-* m_cameraFront:
-* m_cameraRight:
-* m_cameraUp:
+* m_cameraFront: direction the camera is pointing towards.
+* m_cameraRight: right vector perpendicular to the front vector (index finger) and the +y-axis (middle finger).
+* m_cameraUp: up vector perpendicular to both right and front vector; with your right-hand index finger point towards
+*             the right vector and middle finger towards front vector.
 *
 * @ref: https://learnopengl.com/Getting-started/Camera
 */
