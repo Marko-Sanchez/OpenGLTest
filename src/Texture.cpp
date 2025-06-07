@@ -23,6 +23,38 @@ Texture::~Texture()
     }
 }
 
+unsigned int Texture::UploadCubeMap(const std::vector<std::string>& faces)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    for (unsigned int i{0}; i < faces.size(); ++i)
+    {
+        std::unique_ptr<unsigned char[], decltype(stbi_image_free) *> buffer(stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0), stbi_image_free);
+        if (buffer)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer.get());
+        }
+        else
+        {
+            std::cerr << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+            return GLuint(-1);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    m_textures["cubemap"] = std::make_pair(textureID, GL_TEXTURE0);
+    return textureID;
+}
+
 unsigned int Texture::UploadTexture(const std::string& name, const std::string& imagePath, unsigned int textureSlot = 0)
 {
     std::filesystem::path textpath{imagePath};
@@ -44,10 +76,10 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::string& 
     std::unique_ptr<unsigned char[], decltype(stbi_image_free) *> buffer(stbi_load(imagePath.c_str(), &width, &height, &bpp, 4), stbi_image_free);
     if (buffer)
     {
-        unsigned int textureName{0};
-        glGenTextures(1, &textureName);
+        unsigned int textureID{0};
+        glGenTextures(1, &textureID);
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, textureName);
+        glBindTexture(GL_TEXTURE_2D, textureID);
 
         // must specify these or will get black screen.
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -58,9 +90,9 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::string& 
         // send data to opengl.
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.get());
 
-        m_textures[name] = std::make_pair(textureName, textureSlot);
+        m_textures[name] = std::make_pair(textureID, textureSlot);
 
-        return textureName;
+        return textureID;
     }
     else
     {
