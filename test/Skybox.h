@@ -20,7 +20,7 @@ class Skybox: public Test
 
     std::shared_ptr<GLFWwindow> m_window;
 
-    Shaders m_cubeshader;
+    Shaders m_skyboxShader;
     Texture m_texture;
     VertexArray m_cubeVBA;
     VertexBuffer m_cubeVBO;

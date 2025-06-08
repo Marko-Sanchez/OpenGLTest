@@ -4,6 +4,7 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
 
+#include <GL/gl.h>
 #include <vector>
 #include <string>
 
@@ -13,7 +14,7 @@ Skybox::Skybox(std::shared_ptr<void> window):
 m_lastFrameTime(0.0f),
 m_firstMouseMovement(true),
 m_window(std::reinterpret_pointer_cast<GLFWwindow>(window)),
-m_cubeshader("../res/Shaders/Cubemap.vertex", "../res/Shaders/Cubemap.fragment")
+m_skyboxShader("../res/Shaders/Skybox.vertex", "../res/Shaders/Skybox.fragment")
 {
     const std::vector<std::string> faces
     {
@@ -76,8 +77,8 @@ m_cubeshader("../res/Shaders/Cubemap.vertex", "../res/Shaders/Cubemap.fragment")
 
     m_cubeVBA.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
 
-    m_cubeshader.CreateShader();
-    m_cubeshader.Bind();
+    m_skyboxShader.CreateShader();
+    m_skyboxShader.Bind();
 
     m_texture.UploadCubeMap(faces);
     glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f);
@@ -87,8 +88,8 @@ m_cubeshader("../res/Shaders/Cubemap.vertex", "../res/Shaders/Cubemap.fragment")
             glm::vec3(0, 0, 1),// cam target.
             glm::vec3(0, 1, 0) // up vector.
         );
-    m_cubeshader.SetUniformMat4f("u_projection", projectionMatrix);
-    m_cubeshader.SetUniformMat4f("u_view", viewMatrix);
+    m_skyboxShader.SetUniformMat4f("u_projection", projectionMatrix);
+    m_skyboxShader.SetUniformMat4f("u_view", viewMatrix);
 
 
     // set mouse callback.
@@ -106,7 +107,11 @@ void Skybox::OnRender()
 {
     // skybox will always be drawn at the background of all the other objects.
     glDepthMask(GL_FALSE);
-    m_cubeshader.Bind();
+
+    // sky box depth buffer is 1, we only have to render skybox fragments where the early depth buffer passes.
+    // since the max depth buffer value is 1 and we set it to 1 in the vertex buffer we use GL_LEQUAL.
+    glDepthFunc(GL_LEQUAL);
+    m_skyboxShader.Bind();
     m_cubeVBA.Bind();
 
     float currentTime{static_cast<float>(glfwGetTime())};
@@ -120,8 +125,9 @@ void Skybox::OnRender()
         | 0 0 0  1 |
      */
     // remove translation section (upper-left) of view matrix.
-    m_cubeshader.SetUniformMat4f("u_view", glm::mat4(glm::mat3(m_camera.GetViewMatrix())));
+    m_skyboxShader.SetUniformMat4f("u_view", glm::mat4(glm::mat3(m_camera.GetViewMatrix())));
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDepthFunc(GL_LESS);
 }
 
 /*
