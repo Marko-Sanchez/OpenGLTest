@@ -20,6 +20,7 @@
 #include "ColoredCube.h"
 #include "TexturedCube.h"
 #include "Trivial3DModel.h"
+#include "Skybox.h"
 
 int main(void)
 {
@@ -79,6 +80,7 @@ int main(void)
     testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
     testMenu->RegisterTest<tests::TexturedCube>("Textured Cube");
     testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
+    testMenu->RegisterTest<tests::Skybox>("Skybox");
 
     // Loop until the user closes the window.
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window.get()))
