@@ -10,6 +10,7 @@
 
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
 
 #include <vector>
 
@@ -18,7 +19,8 @@ namespace tests
 ColoredCube::ColoredCube(std::shared_ptr<void> window)
 :m_lastFrameTime(0.0f),
  m_window(std::reinterpret_pointer_cast<GLFWwindow>(window)),
- m_shader("../res/Shaders/Cube.vertex", "../res/Shaders/Cube.fragment")
+ m_shader("../res/Shaders/Cube.vertex", "../res/Shaders/Cube.fragment"),
+ m_firstMouseMovement(true)
 {
     const std::vector<float> cubevertices =
     {
@@ -67,13 +69,37 @@ ColoredCube::ColoredCube(std::shared_ptr<void> window)
 
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 
+
+    // avoids the back of the cube showing up when looking at the front.
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    // Camera Controls
+
+    // set mouse callback.
+    glfwSetWindowUserPointer(m_window.get(), this);
+    glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xPosIn, double yPosIn){
+        reinterpret_cast<ColoredCube*>(glfwGetWindowUserPointer(window))->MouseCallback(window, xPosIn, yPosIn);
+    });
+
+    // tell glfw to capture mouse.
+    glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
+/*
+ * Reset all values to default to avoid messing with other test.
+ */
 ColoredCube::~ColoredCube()
 {
     glDisable(GL_DEPTH_TEST);
+
+    // tell glfw to capture mouse.
+    glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetWindowUserPointer(m_window.get(), nullptr);
+    glfwSetCursorPosCallback(m_window.get(), nullptr);
+
+    // TODO: ImGui window no longer responding to mouse interaction.
+    ImGui::GetIO().ConfigFlags |= ~ImGuiConfigFlags_NoMouse;
 }
 
 void ColoredCube::OnRender()
@@ -96,6 +122,11 @@ void ColoredCube::OnRender()
     }
 }
 
+/*
+* Handles Keyboard input.
+* @note: may be moved to a new class called camera interface since
+*        function generalized.
+*/
 void ColoredCube::ProcessKeyboardInput(float deltaTime)
 {
     if (glfwGetKey(m_window.get(), GLFW_KEY_UP) == GLFW_PRESS)
@@ -114,5 +145,29 @@ void ColoredCube::ProcessKeyboardInput(float deltaTime)
     {
         m_camera.ProcessKeyboardInput(LEFT, deltaTime);
     }
+}
+
+void ColoredCube::MouseCallback(GLFWwindow *window, double xposIn, double yposIn)
+{
+    float xpos{static_cast<float>(xposIn)};
+    float ypos{static_cast<float>(yposIn)};
+
+    if (m_firstMouseMovement)
+    {
+        m_lastX = xpos;
+        m_lastY = ypos;
+        m_firstMouseMovement = false;
+    }
+
+    float xoffset{xpos - m_lastX};
+    float yoffset{m_lastY - ypos};
+
+    m_lastX = xpos;
+    m_lastY = ypos;
+    m_camera.ProcessMouseMovement(xoffset, yoffset);
+
+    // TODO: may have to remove this not completly sure what this does, was supposed
+    // to solve cursor issue with imgui.
+    ImGui_ImplGlfw_CursorPosCallback(window, xposIn, yposIn);
 }
 }

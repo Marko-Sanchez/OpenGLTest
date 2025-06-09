@@ -19,6 +19,8 @@ namespace tests
     {
         private:
         float m_lastFrameTime;
+        float m_lastX;
+        float m_lastY;
 
         std::shared_ptr<GLFWwindow> m_window;
 
@@ -31,11 +33,13 @@ namespace tests
         glm::mat4 viewmatrix;
         glm::mat4 m_projectionMatrix;
 
+        bool m_firstMouseMovement;
         public:
         ColoredCube(std::shared_ptr<void> window);
         ~ColoredCube();
 
         void OnRender() override;
         void ProcessKeyboardInput(float deltaTime);
+        void MouseCallback(GLFWwindow *window, double xposIn, double yposIn);
     };
 }
