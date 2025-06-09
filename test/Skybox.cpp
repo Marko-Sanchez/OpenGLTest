@@ -26,7 +26,7 @@ m_skyboxShader("../res/Shaders/Skybox.vertex", "../res/Shaders/Skybox.fragment")
         "../res/images/skybox/back.jpg"
     };
 
-    const std::vector<float> vertices =
+    const std::vector<float> skyboxVertices =
     {
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -70,12 +70,12 @@ m_skyboxShader("../res/Shaders/Skybox.vertex", "../res/Shaders/Skybox.fragment")
         -1.0f, -1.0f,  1.0f,
          1.0f, -1.0f,  1.0f
     };
-    m_cubeVBA.Bind();
+    m_skyboxVBA.Bind();
 
-    m_cubeVBO.Bind();
-    m_cubeVBO.CreateBuffer(vertices);
+    m_skyboxVBO.Bind();
+    m_skyboxVBO.CreateBuffer(skyboxVertices);
 
-    m_cubeVBA.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
+    m_skyboxVBA.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
 
     m_skyboxShader.CreateShader();
     m_skyboxShader.Bind();
@@ -112,7 +112,7 @@ void Skybox::OnRender()
     // since the max depth buffer value is 1 and we set it to 1 in the vertex buffer we use GL_LEQUAL.
     glDepthFunc(GL_LEQUAL);
     m_skyboxShader.Bind();
-    m_cubeVBA.Bind();
+    m_skyboxVBA.Bind();
 
     float currentTime{static_cast<float>(glfwGetTime())};
     ProcessKeyboardInput(currentTime - m_lastFrameTime);

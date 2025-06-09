@@ -10,6 +10,9 @@
 
 namespace tests
 {
+/*
+*
+*/
 class Skybox: public Test
 {
     private:
@@ -20,10 +23,11 @@ class Skybox: public Test
 
     std::shared_ptr<GLFWwindow> m_window;
 
-    Shaders m_skyboxShader;
     Texture m_texture;
-    VertexArray m_cubeVBA;
-    VertexBuffer m_cubeVBO;
+
+    Shaders      m_skyboxShader;
+    VertexArray  m_skyboxVBA;
+    VertexBuffer m_skyboxVBO;
 
     Camera m_camera;
 
@@ -34,6 +38,5 @@ class Skybox: public Test
 
     void ProcessKeyboardInput(float deltaTime);
     void MouseCallback(GLFWwindow *window, double xposIn, double yposIn);
-
 };
 }
