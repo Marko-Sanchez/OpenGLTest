@@ -166,6 +166,19 @@ void Shaders::SetUniform1f(const std::string& name, float value)
     glUniform1f(var_location, value);
 }
 
+/*
+* Upload three contigous floats in an array. Takes a {count} amount of glm::vec3, float [3],
+* float[3*x].
+*/
+void Shaders::SetUniform3fv(const std::string& name, const int count, const GLfloat* value)
+{
+    int var_location{GetUniformLocation(name)};
+    if (var_location <= -1)
+        std::cout << "SetUniform3fv: Variable "<< name <<" Location Not Found" << std::endl;
+
+    glUniform3fv(var_location, count, value);
+}
+
 void Shaders::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
     int var_location{GetUniformLocation(name)};
