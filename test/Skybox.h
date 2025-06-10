@@ -25,8 +25,12 @@ class Skybox: public Test
 
     Texture m_texture;
 
+    Shaders      m_cubeShader;
+    VertexArray  m_cubeVAO;
+    VertexBuffer m_cubeVBO;
+
     Shaders      m_skyboxShader;
-    VertexArray  m_skyboxVBA;
+    VertexArray  m_skyboxVAO;
     VertexBuffer m_skyboxVBO;
 
     Camera m_camera;
