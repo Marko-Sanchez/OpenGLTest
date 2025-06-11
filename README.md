@@ -11,6 +11,9 @@ Examples using the OpenGL API with OpenGL Extension Wrangler Library (GLEW).
 * [GLM][hl_glm] (math operations for rendering)
 * [stb/stb_image.h][hl_stb] (image loader for textures)
 
+### TODO
+texture class, skybox class, any /src not commented.
+
 [hl_glew]: https://glew.sourceforge.net/
 [hl_glfw]: https://www.glfw.org/
 [hl_imgui]: https://github.com/ocornut/imgui
