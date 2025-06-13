@@ -34,6 +34,7 @@ private:
     float m_pitchAngle;
     float m_cameraSpeed;
     float m_mouseSensitivty;
+    float m_fov;
 
     // will be a constant (0, 1, 0) unlike m_cameraUp that changes based on right and front.
     glm::vec3 m_worldUp;
@@ -49,6 +50,9 @@ public:
 
     void ProcessKeyboardInput(CAMERA_MOVEMENT cameramovement, float deltaTime);
     void ProcessMouseMovement(float xoffset, float yoffset);
+    void ProcessMouseScroll(float yoffset);
 
+    float GetZoom() const;
     glm::mat4 GetViewMatrix() const;
+    glm::vec3 GetCameraPos() const;
 };

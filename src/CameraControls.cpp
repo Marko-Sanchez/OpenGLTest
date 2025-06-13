@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 Camera::Camera()
-:m_yawAngle(-90.0f), m_pitchAngle(0.0f), m_cameraSpeed(3.0f), m_mouseSensitivty(0.01f),
+:m_yawAngle(-90.0f), m_pitchAngle(0.0f), m_cameraSpeed(3.0f), m_mouseSensitivty(0.01f), m_fov(45.0f),
  m_worldUp(std::move(glm::vec3(0.0f, 1.0f, 0.0f))),
  m_cameraPosition(std::move(glm::vec3(0.0f, 0.0f, 5.0f)))
 {
@@ -93,9 +93,41 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset)
 }
 
 /*
+ * Uses the scroll wheel to handle glm::perspective fov or 'zoom'.
+ */
+void Camera::ProcessMouseScroll(float yoffset)
+{
+    m_fov -= yoffset;
+    if (m_fov < 1.0f)
+    {
+        m_fov = 1.0f;
+    }
+    if (m_fov > 45.0f)
+    {
+        m_fov = 45.0f;
+    }
+}
+
+/*
+ * Returns value of Field of view. Used in glm:perspective().
+ */
+float Camera::GetZoom() const
+{
+    return m_fov;
+}
+
+/*
 * Returns view matrix.
 */
 glm::mat4 Camera::GetViewMatrix() const
 {
     return glm::lookAt(m_cameraPosition, m_cameraPosition + m_cameraFront, m_cameraUp);
+}
+
+/*
+* Returns camera position.
+*/
+glm::vec3 Camera::GetCameraPos() const
+{
+    return m_cameraPosition;
 }
