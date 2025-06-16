@@ -4,6 +4,7 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
 
+#include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <GL/gl.h>
@@ -147,8 +148,13 @@ m_skyboxShader("../res/Shaders/Skybox.vertex", "../res/Shaders/Skybox.fragment")
     // TODO: Note once cursor is diabled it is unable to interact with ImGui. fix later.
     // set mouse callback.
     glfwSetWindowUserPointer(m_window.get(), this);
-    glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xPosIn, double yPosIn){
+    glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xPosIn, double yPosIn)
+    {
         reinterpret_cast<Skybox*>(glfwGetWindowUserPointer(window))->MouseCallback(window, xPosIn, yPosIn);
+    });
+    glfwSetScrollCallback(m_window.get(), [](GLFWwindow* window, double xPosIn, double yPosIn)
+    {
+        reinterpret_cast<Skybox*>(glfwGetWindowUserPointer(window))->ScrollWheelCallback(window, xPosIn, yPosIn);
     });
     // tell glfw to capture mouse.
     glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -167,7 +173,7 @@ void Skybox::OnRender()
 
     m_cubeShader.SetUniformMat4f("u_model", glm::mat4(1.0f));
     m_cubeShader.SetUniformMat4f("u_view", m_camera.GetViewMatrix());
-    m_cubeShader.SetUniformMat4f("u_projection", glm::perspective(glm::radians(45.0f), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f));
+    m_cubeShader.SetUniformMat4f("u_projection", glm::perspective(glm::radians(m_camera.GetZoom()), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f));
     m_cubeShader.SetUniform3fv("u_cameraPos", 1, glm::value_ptr(m_camera.GetCameraPos()));
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -195,7 +201,7 @@ void Skybox::OnRender()
      */
     // remove translation section (upper-left) of view matrix.
     m_skyboxShader.SetUniformMat4f("u_view", glm::mat4(glm::mat3(m_camera.GetViewMatrix())));
-    m_skyboxShader.SetUniformMat4f("u_projection", glm::perspective(glm::radians(45.0f), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f));
+    m_skyboxShader.SetUniformMat4f("u_projection", glm::perspective(glm::radians(m_camera.GetZoom()), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f));
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
 }
@@ -248,4 +254,12 @@ void Skybox::MouseCallback(GLFWwindow *window, double xposIn, double yposIn)
     m_lastY = ypos;
     m_camera.ProcessMouseMovement(xoffset, yoffset);
 }
+
+/*
+* Handles Zoom / FOV via scroll wheel callback.
+*/
+void Skybox::ScrollWheelCallback(GLFWwindow *window, double xposIn, double yposIn)
+{
+    m_camera.ProcessMouseScroll(static_cast<float>(yposIn));
 }
+}// namespace tests

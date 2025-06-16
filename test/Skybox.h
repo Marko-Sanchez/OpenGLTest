@@ -42,5 +42,6 @@ class Skybox: public Test
 
     void ProcessKeyboardInput(float deltaTime);
     void MouseCallback(GLFWwindow *window, double xposIn, double yposIn);
+    void ScrollWheelCallback(GLFWwindow *window, double xposIn, double yposIn);
 };
 }
