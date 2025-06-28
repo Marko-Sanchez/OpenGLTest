@@ -23,6 +23,9 @@ Texture::~Texture()
     }
 }
 
+// TODO: m_texture["cubemap"] is hard coded as well as activetexture.
+// although since this is a sky box, telling the use to use GL_TEXTURE0
+// could be a thing.
 unsigned int Texture::UploadCubeMap(const std::vector<std::string>& faces)
 {
     unsigned int textureID;
@@ -164,6 +167,8 @@ unsigned int Texture::UploadBMP(const std::string& imagePath, unsigned int textu
     return textureName;
 }
 
+// TODO: currently binds using GL_TEXTURE_CUBE_MAP, which is specific to sky box.
+// figure out a way to alternate between texture2d, and any other possible texture types.
 /*
 * Select which texture unit the subsequent state calls will affect.
 * There are 0 -> (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1 ) texture slots available.
@@ -173,7 +178,8 @@ void Texture::Bind(const std::string& name)
     if(auto it = m_textures.find(name); it != m_textures.end())
     {
         glActiveTexture(GL_TEXTURE0 + it->second.second);
-        glBindTexture(GL_TEXTURE_2D, it->second.first);
+        /* glBindTexture(GL_TEXTURE_2D, it->second.first); */
+        glBindTexture(GL_TEXTURE_CUBE_MAP, it->second.first);
     }
     else
     {
