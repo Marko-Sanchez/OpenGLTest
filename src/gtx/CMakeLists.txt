@@ -1,0 +1,36 @@
+add_library(opengltest-gtx
+    CameraControls.h
+    CameraControls.cpp
+    Debugger.h
+    Debugger.cpp
+    IndexBuffer.h
+    IndexBuffer.cpp
+    ModelLoader.h
+    ModelLoader.cpp
+    Renderer.h
+    Renderer.cpp
+    Shaders.h
+    Shaders.cpp
+    Texture.h
+    Texture.cpp
+    VertexArray.h
+    VertexArray.cpp
+    VertexBuffer.h
+    VertexBuffer.cpp
+    VertexBufferLayout.h
+    VertexBufferLayout.cpp
+)
+
+target_include_directories(opengltest-gtx
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/src
+)
+
+target_link_libraries(opengltest-gtx
+    PUBLIC
+        GL
+        GLEW::GLEW
+        glm::glm
+        Threads::Threads
+        stb
+)

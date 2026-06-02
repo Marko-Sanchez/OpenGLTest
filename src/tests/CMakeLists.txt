@@ -1,0 +1,31 @@
+add_library(opengltest-tests
+    Test.h
+    TestMenu.cpp
+    BatchRendering.h
+    BatchRendering.cpp
+    ClearColor.h
+    ClearColor.cpp
+    ColoredCube.h
+    ColoredCube.cpp
+    MultiTexture.h
+    MultiTexture.cpp
+    RawTexture.h
+    RawTexture.cpp
+    Skybox.h
+    Skybox.cpp
+    TexturedCube.h
+    TexturedCube.cpp
+    Trivial3DModel.h
+    Trivial3DModel.cpp
+)
+
+target_include_directories(opengltest-tests
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/src
+)
+
+target_link_libraries(opengltest-tests
+    PUBLIC
+        opengltest-gtx
+        imgui
+)
