@@ -5,9 +5,19 @@
 
 namespace tests
 {
+namespace
+{
+    constexpr std::string_view k_TestName {"Clear Color"};
+}// anonymous namespace
+
 ClearColor::ClearColor(std::shared_ptr<void> window)
 :m_ClearColor{0.2f, 0.3f, 0.8f, 1.0f}
 {}
+
+std::string_view ClearColor::GetName() const
+{
+    return k_TestName;
+}
 
 void ClearColor::OnRender()
 {
@@ -15,9 +25,8 @@ void ClearColor::OnRender()
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-// Updates color via button.
 void ClearColor::OnImGuiRender()
 {
-    ImGui::ColorEdit4("Clear Color", m_ClearColor);
+    ImGui::ColorEdit4("Color Picker", m_ClearColor.data());
 }
 }
