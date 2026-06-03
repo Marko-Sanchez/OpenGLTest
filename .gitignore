@@ -34,3 +34,6 @@
 # CMAKE output
 /build
 /.cache
+
+# ImGui config file
+imgui.ini
