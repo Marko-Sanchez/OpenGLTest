@@ -28,6 +28,13 @@ class IndexBuffer
     // Info on why explicit specilization don't overload: http://www.gotw.ca/publications/mill17.htm
     /* Above comments are in-reference to previous attempts at creating this class, will kept in for education purposes */
 
+    template<typename T, std::size_t N>
+    void CreateBuffer(const std::array<T, N>& data)
+    {
+        Bind();
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
+    }
+
     template<typename T>
     void CreateBuffer(const std::vector<T>& data)
     {

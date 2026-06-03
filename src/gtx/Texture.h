@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <filesystem>
 
 // Reads texture and sends the data to gpu.
 // stb_image.h helps us with reading and loading the texture onto a local buffer,
@@ -19,8 +20,8 @@ class Texture
     ~Texture();
 
     unsigned int UploadCubeMap(const std::vector<std::string>& faces);
-    unsigned int UploadTexture(const std::string& name, const std::string& imagePath, unsigned int textureSlot);
-    unsigned int UploadBMP(const std::string& imagePath, unsigned int textureSlot);
+    unsigned int UploadTexture(const std::string& name, const std::filesystem::path& imagePath, unsigned int textureSlot);
+    unsigned int UploadBMP(const std::filesystem::path& imagePath, unsigned int textureSlot);
 
     void Bind(const std::string& name);
     void UnBind() const;

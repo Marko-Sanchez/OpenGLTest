@@ -58,10 +58,9 @@ unsigned int Texture::UploadCubeMap(const std::vector<std::string>& faces)
     return textureID;
 }
 
-unsigned int Texture::UploadTexture(const std::string& name, const std::string& imagePath, unsigned int textureSlot = 0)
+unsigned int Texture::UploadTexture(const std::string& name, const std::filesystem::path& imagePath, unsigned int textureSlot = 0)
 {
-    std::filesystem::path textpath{imagePath};
-    if (!std::filesystem::exists(textpath))
+    if (!std::filesystem::exists(imagePath))
     {
         std::cerr << "Filepath " << imagePath << "\ndoes not exist." << std::endl;
         return GLuint(-1);
@@ -105,7 +104,7 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::string& 
     }
 }
 
-unsigned int Texture::UploadBMP(const std::string& imagePath, unsigned int textureSlot)
+unsigned int Texture::UploadBMP(const std::filesystem::path& imagePath, unsigned int textureSlot)
 {
     const int BMP_HEADER_SIZE{54};
 

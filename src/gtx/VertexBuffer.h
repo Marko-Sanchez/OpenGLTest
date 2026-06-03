@@ -22,6 +22,13 @@ class VertexBuffer
     void Bind() const;
     void UnBind() const;
 
+    template<typename T, std::size_t N>
+    void CreateBuffer(const std::array<T, N>& data)
+    {
+        Bind();
+        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
+    }
+
     template<typename T>
     void CreateBuffer(const std::vector<T>& data)
     {
