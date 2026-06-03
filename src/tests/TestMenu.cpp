@@ -1,10 +1,12 @@
-#include "Test.h"
+#include "TestMenu.h"
+
 #include <imgui.h>
 
 namespace tests
 {
 TestMenu::TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer)
-: g_window(window), m_currentTest(currentTestPointer)
+    :g_window(window),
+    m_currentTest(currentTestPointer)
 {}
 
 void TestMenu::OnImGuiRender()
@@ -15,4 +17,4 @@ void TestMenu::OnImGuiRender()
             m_currentTest = test(g_window);
     }
 }
-}
+}// namespace tests

@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 
+#include "tests/TestMenu.h"
 #include "tests/ClearColor.h"
 #include "tests/MultiTexture.h"
 #include "tests/BatchRendering.h"

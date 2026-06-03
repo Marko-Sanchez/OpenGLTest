@@ -1,5 +1,6 @@
 add_library(opengltest-tests
     Test.h
+    TestMenu.h
     TestMenu.cpp
     BatchRendering.h
     BatchRendering.cpp
