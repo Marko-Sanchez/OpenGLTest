@@ -2,6 +2,7 @@
 
 #include "Test.h"
 
+#include <string_view>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -15,9 +16,9 @@
 namespace tests
 {
 // MultiTexture displays multiple textures using an orthographic projection.
-class MultiTexture: public Test
+class MultiTexture final: public Test
 {
-    private:
+    public:
 
         struct TextureInfo
         {
@@ -33,6 +34,8 @@ class MultiTexture: public Test
             float texcords[2];
             int   texID;
         };
+
+    private:
 
         glm::mat4 m_projectionMatrix;
         glm::mat4 m_viewMatrix;
@@ -50,7 +53,8 @@ class MultiTexture: public Test
 
         MultiTexture(std::shared_ptr<void> window);
 
+        std::string_view GetName() const override;
         void OnRender() override;
         void OnImGuiRender() override;
 };
-}
+}// namespace tests
