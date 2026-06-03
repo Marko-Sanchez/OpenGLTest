@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 namespace tests
 {
@@ -14,6 +15,7 @@ class Test
 
         virtual ~Test(){}
 
+        virtual std::string_view GetName() const {return "Test";}
         virtual void OnRender(){}
         virtual void OnImGuiRender(){}
 };

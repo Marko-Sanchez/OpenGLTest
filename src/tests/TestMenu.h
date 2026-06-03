@@ -27,6 +27,7 @@ class TestMenu: public Test
 
         TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer);
 
+        std::string_view GetName() const override;
         void OnImGuiRender() override;
 
         // creates a vector of test, using a lambda to build test on demand.

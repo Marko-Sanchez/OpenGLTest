@@ -82,6 +82,8 @@ int main(void)
     testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
     testMenu->RegisterTest<tests::Skybox>("Skybox");
 
+    char ImGuiTitleBuffer[256] = {};
+
     // Loop until the user closes the window.
     while (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window.get()))
     {
@@ -96,7 +98,8 @@ int main(void)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
-            ImGui::Begin("Test Menu");
+            sprintf(ImGuiTitleBuffer, "Test Menu - %s ###WindowTitle", currentTest->GetName().data());
+            ImGui::Begin(ImGuiTitleBuffer);
             if (currentTest != testMenu && (ImGui::Button("<-") || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
             {
                 currentTest = testMenu;
