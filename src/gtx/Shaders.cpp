@@ -10,11 +10,11 @@
 #include <ostream>
 #include <string>
 
-Shaders::Shaders(const std::string& vertexFile, const std::string& fragmentFile)
+Shaders::Shaders(const std::filesystem::path& vertexFile, const std::filesystem::path& fragmentFile)
     :m_programID(0)
 {
-    m_vertexshader = ParseShaderFile(vertexFile);
-    m_fragmentshader = ParseShaderFile(fragmentFile);
+    m_vertexContent = ParseShaderFile(vertexFile);
+    m_fragmentContent = ParseShaderFile(fragmentFile);
 }
 
 Shaders::~Shaders()
@@ -40,7 +40,7 @@ unsigned int Shaders::CompileShader(unsigned int type, const std::string& source
         char *message = (char*)alloca(length * sizeof(char));
         glGetShaderInfoLog(id, length, &length, message);
 
-        std::cout << "Failed to Compile "
+        std::cerr << "Failed to Compile "
             << (type == GL_VERTEX_SHADER ? "vertex" : "fragment")
             << " shader\n" << message << std::endl;
 
@@ -51,26 +51,25 @@ unsigned int Shaders::CompileShader(unsigned int type, const std::string& source
     return id;
 }
 
-std::string Shaders::ParseShaderFile(const std::string& filepath)
+std::string Shaders::ParseShaderFile(const std::filesystem::path& filepath)
 {
     std::ifstream ifs(filepath);
 
     if (!std::filesystem::exists(filepath))
     {
-        std::cout << "File " << filepath << " does not exits..." << std::endl;
+        std::cerr << "File " << filepath << " does not exits..." << std::endl;
         return "";
     }
     else if (!ifs.is_open())
     {
-        std::cout << "Failed to Open file: " << filepath << std::endl;
+        std::cerr << "Failed to Open file: " << filepath << std::endl;
         return "";
     }
 
     std::string line;
     std::string contents;
 
-    auto size = ifs.tellg();
-    if (size > 0)
+    if (auto size = ifs.tellg(); size > 0)
         contents.reserve(static_cast<size_t>(size));
 
     while (getline(ifs, line))
@@ -95,10 +94,10 @@ void Shaders::CreateShader()
 {
     m_programID = glCreateProgram();
     if (m_programID == 0)
-        std::cout << "Error occured creating program" << std::endl;
+        std::cerr << "Error occured creating program" << std::endl;
 
-    unsigned int vs{CompileShader(GL_VERTEX_SHADER, m_vertexshader)};
-    unsigned int fs{CompileShader(GL_FRAGMENT_SHADER, m_fragmentshader)};
+    unsigned int vs {CompileShader(GL_VERTEX_SHADER, m_vertexContent)};
+    unsigned int fs {CompileShader(GL_FRAGMENT_SHADER, m_fragmentContent)};
 
     glAttachShader(m_programID, vs);
     glAttachShader(m_programID, fs);
@@ -113,10 +112,10 @@ void Shaders::CreateShader()
         int loglength;
         glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &loglength);
 
-        char *message = (char*) alloca(loglength * sizeof(char));
-        glGetProgramInfoLog(m_programID, loglength, &loglength, message);
+        std::string message (loglength, '\0');
+        glGetProgramInfoLog(m_programID, loglength, &loglength, message.data());
 
-        std::cout << "Program failed to link/validate:\n\n"
+        std::cerr << "Program failed to link/validate:\n\n"
                   << message << std::endl;
     }
 
@@ -131,7 +130,7 @@ int Shaders::GetUniformLocation(const std::string& name)
     if (it != m_uniformLocationCache.end())
         return it->second;
 
-    int uLocation{glGetUniformLocation(m_programID, name.c_str())};
+    int uLocation {glGetUniformLocation(m_programID, name.c_str())};
     if (uLocation != -1)
         m_uniformLocationCache[name] = uLocation;
 
@@ -141,27 +140,27 @@ int Shaders::GetUniformLocation(const std::string& name)
 // glUniform1i and glUniform1iv are the only two functions that may be used to load uniform variables defined as sampler types.
 void Shaders::SetUniform1i(const std::string& name, int value)
 {
-    int var_location{GetUniformLocation(name)};
+    int var_location {GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform1i: Variable "<< name <<" Location Not Found" << std::endl;
+        std::cerr << "SetUniform1i: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform1i(var_location, value);
 }
 
 void Shaders::SetUniform1iv(const std::string& name, int count, int* value)
 {
-    int var_location{GetUniformLocation(name)};
+    int var_location {GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform1iv: Variable "<< name <<" Location Not Found" << std::endl;
+        std::cerr << "SetUniform1iv: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform1iv(var_location, count, value);
 }
 
 void Shaders::SetUniform1f(const std::string& name, float value)
 {
-    int var_location{GetUniformLocation(name)};
+    int var_location {GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform1f: Variable "<< name <<" Location Not Found" << std::endl;
+        std::cerr << "SetUniform1f: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform1f(var_location, value);
 }
@@ -172,27 +171,27 @@ void Shaders::SetUniform1f(const std::string& name, float value)
 */
 void Shaders::SetUniform3fv(const std::string& name, const int count, const GLfloat* value)
 {
-    int var_location{GetUniformLocation(name)};
+    int var_location {GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform3fv: Variable "<< name <<" Location Not Found" << std::endl;
+        std::cerr << "SetUniform3fv: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform3fv(var_location, count, value);
 }
 
 void Shaders::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
-    int var_location{GetUniformLocation(name)};
+    int var_location {GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniform4f: Variable "<< name <<" Location Not Found" << std::endl;
+        std::cerr << "SetUniform4f: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniform4f(var_location, v0, v1, v2, v3);
 }
 
 void Shaders::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
 {
-    int var_location{GetUniformLocation(name)};
+    int var_location {GetUniformLocation(name)};
     if (var_location <= -1)
-        std::cout << "SetUniformMat4f: Variable "<< name <<" Location Not Found" << std::endl;
+        std::cerr << "SetUniformMat4f: Variable "<< name <<" Location Not Found" << std::endl;
 
     glUniformMatrix4fv(var_location, 1, GL_FALSE, &matrix[0][0]);
 }
