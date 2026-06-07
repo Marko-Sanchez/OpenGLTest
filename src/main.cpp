@@ -6,10 +6,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 
-#include <cstdio>
 #include <iostream>
 #include <cstdlib>
-#include <string>
 #include <memory>
 
 #include "tests/TestMenu.h"
@@ -22,7 +20,7 @@
 #include "tests/Trivial3DModel.h"
 #include "tests/Skybox.h"
 
-int main(void)
+int main ()
 {
     constexpr int WINDOW_WIDTH{1280};
     constexpr int WINDOW_HEIGHT{1280};
@@ -74,9 +72,9 @@ int main(void)
     currentTest = testMenu;
 
     testMenu->RegisterTest<tests::ClearColor>("Clear Color");
-    testMenu->RegisterTest<tests::MultiTexture>("Multiple Texture");
     testMenu->RegisterTest<tests::BatchRendering>("Batch Rendering");
     testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
+    testMenu->RegisterTest<tests::MultiTexture>("Multiple Texture");
     testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
     testMenu->RegisterTest<tests::TexturedCube>("Textured Cube");
     testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
