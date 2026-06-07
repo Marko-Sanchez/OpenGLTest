@@ -1,15 +1,22 @@
 #include "RawTexture.h"
 
 #include <cstddef>
-#include <vector>
+#include <array>
 
 namespace tests
 {
-RawTexture::RawTexture(std::shared_ptr<void> window)
-:m_shader("res/Shaders/Raw.vertex","res/Shaders/Raw.fragment")
+namespace
 {
-    const std::vector<Vertex> vertices =
-    {
+    constexpr std::string_view k_TestName        {"Raw Texture"};
+
+    const std::filesystem::path k_VertexShader   {"res/Shaders/Raw.vertex"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/Raw.fragment"};
+    const std::filesystem::path k_Image1         {"res/images/cheese.png"};
+    const std::filesystem::path k_Image2         {"res/images/nachowink.png"};
+
+    // values are normalized between [-1, 1].
+    constexpr std::array<RawTexture::Vertex, 8> k_VertexArray =
+    {{
         {{-0.50f, -0.25f, 0.0f}, {0.0f, 0.0f}, 0},
         {{-0.25f, -0.25f, 0.0f}, {1.0f, 0.0f}, 0},
         {{-0.25f,  0.0f , 0.0f}, {1.0f, 1.0f}, 0},
@@ -20,29 +27,34 @@ RawTexture::RawTexture(std::shared_ptr<void> window)
         {{0.50f, -0.25f, 0.0f}, {1.0f, 0.0f}, 1},
         {{0.50f,  0.0f , 0.0f}, {1.0f, 1.0f}, 1},
         {{0.25f,  0.0f , 0.0f}, {0.0f, 1.0f}, 1}
-    };
-    const std::vector<unsigned int> ibuffer =
+    }};
+
+    constexpr std::array<GLuint, 12> k_IndexBuffer =
     {
         0, 1, 2, 2, 3, 0,
         4, 5, 6, 6, 7, 4
     };
+}// anonymous namespace
 
+RawTexture::RawTexture(std::shared_ptr<void> window)
+:m_shader(k_VertexShader, k_FragmentShader)
+{
     // VAO must be bound before vbo and ibo are bound.
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    // create vertex buffer object.
+    // allocate vertex buffer object.
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * k_VertexArray.size(), k_VertexArray.data(), GL_STATIC_DRAW);
 
     // When a buffer is bound to GL_ELEMENT_ARRAY_BUFFER, all drawing commands of the form gl*Draw*Elements* will use indexes from that buffer.
     GLuint ibo;
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * ibuffer.size(), &ibuffer[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * k_IndexBuffer.size(), k_IndexBuffer.data(), GL_STATIC_DRAW);
 
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
@@ -71,8 +83,8 @@ RawTexture::RawTexture(std::shared_ptr<void> window)
     int textureSampler[2] = {0, 1};
     m_shader.SetUniform1iv("texturez", 2, textureSampler);
 
-    GLuint cheese_texturename = m_texture.UploadTexture("cheese", "res/images/cheese.png", 0);
-    GLuint nacho_texturename = m_texture.UploadTexture("nacho", "res/images/nachowink.png", 1);
+    GLuint cheese_texturename = m_texture.UploadTexture("cheese", k_Image1, textureSampler[0]);
+    GLuint nacho_texturename  = m_texture.UploadTexture("nacho", k_Image2, textureSampler[1]);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, cheese_texturename);
@@ -87,12 +99,17 @@ RawTexture::~RawTexture()
     glDeleteBuffers(1, &m_ibo);
 }
 
+std::string_view RawTexture::GetName() const
+{
+    return k_TestName;
+}
+
 void RawTexture::OnRender()
 {
     m_shader.Bind();
     glBindVertexArray(m_vao);
 
-    // since the ibo was bound to vao we can set the last parameter to nullptr. 6 is based on num elements in ibuffer.
+    // since the ibo was bound to vao we can set the last parameter to nullptr. 12 is based on num elements in ibuffer.
     glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 }
-}
+}// namespace tests
