@@ -1,5 +1,10 @@
 #include "BatchRendering.h"
 
+#include <random>
+#include <string_view>
+#include <filesystem>
+#include <array>
+
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -8,72 +13,114 @@
 
 namespace tests
 {
-    BatchRendering::BatchRendering(std::shared_ptr<void> window)
-    :m_shader("res/Shaders/Rectangle.vertex", "res/Shaders/Rectangle.fragment")
+namespace
+{
+    constexpr std::string_view k_TestName        {"Batch Rendering"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/Rectangle.vertex"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/Rectangle.fragment"};
+
+    std::array<float, 4> RandomColor()
     {
-        const std::vector<float> vertices =
-        {
-            // first square.    colors (rgba)
-            -1.5f, -0.5f, -10.0f, 0.22f, 1.05f, 0.25f, 1.0f,
-            -0.5f, -0.5f, -10.0f, 0.22f, 1.05f, 0.25f, 1.0f,
-            -0.5f,  0.5f, -10.0f,  0.22f, 1.05f, 0.25f, 1.0f,
-            -1.5f,  0.5f, -10.0f,  0.22f, 1.05f, 0.25f, 1.0f,
+        static std::mt19937 s_engine {std::random_device{}()};
+        static std::uniform_real_distribution<float> s_dist{0.0f, 1.0f};
+        const float alpha {1.0f};
 
-            // second square.
-            0.5f, -0.5f, -10.0f, 2.27f, 1.93f, 0.0f, 1.0f,
-            1.5f, -0.5f, -10.0f, 2.27f, 1.93f, 0.0f, 1.0f,
-            1.5f,  0.5f, -10.0f, 2.27f, 1.93f, 0.0f, 1.0f,
-            0.5f,  0.5f, -10.0f, 2.27f, 1.93f, 0.0f, 1.0f
-        };
-
-        // Indexes help reduce redudant calls to draw vertices that share the same 'position.'
-        const std::vector<unsigned int> indexes =
-        {
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4
-        };
-
-        m_va.Bind();
-
-        m_vb.Bind();
-        m_vb.CreateBuffer(vertices);
-
-        m_va.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(0));
-        m_va.AddAttribute(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(sizeof(float) * 3));
-
-        m_ib.Bind();
-        m_ib.CreateBuffer(indexes);
-
-        // glm::perspective() simulates distance of object to us, making it appear bigger/smaller.
-        // first argument, controls the angle at which the camera sees the world; think of it
-        // as stretching your hands out to your monitor and making a < symbol.
-        // "Zooming in games is often accomplished by decreasing this angle as opposed
-        // to moving the camera closer, because it more closely resembles real life."
-        // https://open.gl/transformations
-        m_translationMatrix = glm::vec3(0.0f, 0.0f, 0.0f);
-        m_projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<float>(800.0f / 600.0f), 0.1f, 20.0f);
-        m_viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-        m_shader.CreateShader();
-        m_shader.Bind();
+        return {s_dist(s_engine), s_dist(s_engine), s_dist(s_engine), alpha};
     }
+}// anonymous namespace
 
-    void BatchRendering::OnRender()
-    {
-        m_shader.Bind();
-        m_va.Bind();
-        {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), m_translationMatrix);
-            glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
-            m_shader.SetUniformMat4f("u_MVP", mvp);
+BatchRendering::BatchRendering(std::shared_ptr<void> window)
+    :m_shader(k_VertexShader, k_FragmentShader),
+    m_wireFrame(false)
+{
+    // Could be any size, but should be large enough to fit desired data; otherwise, will need
+    // way to track when store reaches capacity to flush data (draw).
+    const float bufferStoreSize {16/*Rows*/ * 8/*Cols*/ * 6/*# Vertices in Rect.*/};
+    m_vertices.reserve(bufferStoreSize);
 
-            // batch render both rectangles: 12 = 2 rectangles, each made up of 2 triangles, each triangle has 3 positions/elements; 1 rectangle = 3 elements
-            glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
-        }
-    }
+    m_va.Bind();
 
-    void BatchRendering::OnImGuiRender()
-    {
-        ImGui::SliderFloat3("Translation", &m_translationMatrix.x, -4.0f, 4.0f);
-    }
+    // generate vertex buffer and allocate memory (1).
+    glGenBuffers(1, &m_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * bufferStoreSize, nullptr, GL_STATIC_DRAW);
+
+    m_va.AddAttribute(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
+    m_va.AddAttribute(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, color)));
+
+    m_shader.CreateShader();
+    m_shader.Bind();
+
+    // ortho helps normalize our data between [-1,1]; (0, 0) -> (-1, -1)
+    m_shader.SetUniformMat4f("u_MVP", glm::ortho(0.f, 512.f, 0.f, 1024.f, -1.f, 1.f));
+    this->GeneratePositions();
 }
+
+BatchRendering::~BatchRendering()
+{
+    glDeleteBuffers(1, &m_vertexBuffer);
+}
+
+std::string_view BatchRendering::GetName() const
+{
+    return k_TestName;
+}
+
+/*
+ * Without batch rendering we would/might have had to make a draw call for every rectangle created, which would
+ * be expensive. Batch-rendering avoids making draw calls by creating a large buffer (1) and making a singular call (2)
+ * for the entire buffer that could contain multiple rectangles (3).
+ */
+void BatchRendering::OnRender()
+{
+    glPolygonMode(GL_FRONT_AND_BACK, m_wireFrame ? GL_LINE: GL_FILL);
+
+    m_shader.Bind();
+    m_va.Bind();
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+
+    // Batch Render all the vertices (2).
+    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void BatchRendering::OnImGuiRender()
+{
+    ImGui::Checkbox("View Vertices", &m_wireFrame);
+}
+
+void BatchRendering::GeneratePositions()
+{
+    // (3).
+    const size_t totalRows {16};
+    const size_t totalCols {8};
+    const float  size      {64};
+
+    float yPosition {};
+    for (size_t row {0}; row < totalRows; ++row)
+    {
+        float xPosition {};
+        for (size_t col {0}; col < totalCols; ++col)
+        {
+            const auto color {RandomColor()};
+
+            m_vertices.push_back({{xPosition, yPosition}, color});
+            m_vertices.push_back({{xPosition, yPosition + size}, color});
+            m_vertices.push_back({{xPosition + size, yPosition + size}, color});
+
+            m_vertices.push_back({{xPosition, yPosition}, color});
+            m_vertices.push_back({{xPosition + size, yPosition}, color});
+            m_vertices.push_back({{xPosition + size, yPosition + size}, color});
+
+            xPosition += size;
+        }
+        yPosition += size;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    // updates a subset of buffer object store in this case 0 -> size of m_vertices<Vertex>
+    // buffer object store should be big enough to fit this data, else error is thrown.
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * m_vertices.size(), m_vertices.data());
+}
+}// namespace tests
