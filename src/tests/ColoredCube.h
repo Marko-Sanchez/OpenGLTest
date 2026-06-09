@@ -3,6 +3,7 @@
 #include "Test.h"
 
 #include <memory>
+#include <string_view>
 
 #include "gtx/Shaders.h"
 #include "gtx/VertexArray.h"
@@ -14,13 +15,17 @@
 
 namespace tests
 {
-class ColoredCube: public Test
+class ColoredCube final: public Test
 {
-    private:
+    public:
 
-        float m_lastFrameTime;
-        float m_lastX;
-        float m_lastY;
+        struct Vertex
+        {
+            glm::vec3 position;
+            glm::vec4 color;
+        };
+
+    private:
 
         std::shared_ptr<GLFWwindow> m_window;
 
@@ -30,18 +35,21 @@ class ColoredCube: public Test
         VertexBuffer m_vbo;
         Camera       m_camera;
 
-        glm::mat4 viewmatrix;
-        glm::mat4 m_projectionMatrix;
+        glm::mat4 m_viewMatrix;
+        glm::mat4 m_projMatrix;
 
-        bool m_firstMouseMovement;
+        float m_lastFrameTime;
+        bool  m_wireFrame;
+
+        void ProcessKeyboardInput(float deltaTime);
 
     public:
 
         ColoredCube(std::shared_ptr<void> window);
         ~ColoredCube();
 
+        std::string_view GetName() const override;
         void OnRender() override;
-        void ProcessKeyboardInput(float deltaTime);
-        void MouseCallback(GLFWwindow *window, double xposIn, double yposIn);
+        void OnImGuiRender() override;
 };
-}
+}// namespace tests
