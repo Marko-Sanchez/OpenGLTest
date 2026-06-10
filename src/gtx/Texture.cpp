@@ -177,8 +177,8 @@ void Texture::Bind(const std::string& name)
     if(auto it = m_textures.find(name); it != m_textures.end())
     {
         glActiveTexture(GL_TEXTURE0 + it->second.second);
-        /* glBindTexture(GL_TEXTURE_2D, it->second.first); */
-        glBindTexture(GL_TEXTURE_CUBE_MAP, it->second.first);
+        glBindTexture(GL_TEXTURE_2D, it->second.first);
+        // glBindTexture(GL_TEXTURE_CUBE_MAP, it->second.first);
     }
     else
     {

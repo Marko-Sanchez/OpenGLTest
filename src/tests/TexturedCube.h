@@ -13,9 +13,9 @@
 
 namespace tests
 {
-class TexturedCube: public Test
+class TexturedCube final: public Test
 {
-    private:
+    public:
 
         struct Vertex
         {
@@ -23,7 +23,7 @@ class TexturedCube: public Test
             glm::vec2 tcords;
         };
 
-        int m_numIndices;
+    private:
 
         Shaders m_shader;
         Texture m_texture;
@@ -32,8 +32,8 @@ class TexturedCube: public Test
         VertexBuffer m_vbo;
         IndexBuffer m_ibo;
 
-        glm::mat4 projectionMatrix;
-        glm::mat4 modelMatrix;
+        glm::mat4 m_projMatrix;
+        glm::mat4 m_modelMatrix;
 
     public:
 
@@ -41,4 +41,4 @@ class TexturedCube: public Test
 
         void OnRender() override;
 };
-}
+}// namespace tests
