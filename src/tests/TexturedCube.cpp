@@ -16,6 +16,7 @@ namespace tests
 {
 namespace
 {
+    constexpr std::string_view k_TestName        {"Textured Cube"};
     const std::filesystem::path k_VertexShader   {"res/Shaders/TexturedCube.vertex"};
     const std::filesystem::path k_FragmentShader {"res/Shaders/TexturedCube.fragment"};
     const std::filesystem::path k_Image          {"res/images/mc.png"};
@@ -119,6 +120,11 @@ TexturedCube::TexturedCube(std::shared_ptr<void> window)
 
     if (GLenum err = glGetError(); err != GL_NO_ERROR)
         std::cerr << "TexturedCube::Construtor() OpenGL Error: " << err << std::endl;
+}
+
+std::string_view TexturedCube::GetName() const
+{
+    return k_TestName;
 }
 
 void TexturedCube::OnRender()

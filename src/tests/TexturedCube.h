@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <string_view>
 
 #include "gtx/VertexArray.h"
 #include "gtx/VertexBuffer.h"
@@ -39,6 +40,7 @@ class TexturedCube final: public Test
 
         TexturedCube(std::shared_ptr<void> window);
 
+        std::string_view GetName() const override;
         void OnRender() override;
 };
 }// namespace tests
