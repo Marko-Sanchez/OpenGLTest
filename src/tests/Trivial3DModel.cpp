@@ -5,14 +5,26 @@
 #include <glm/fwd.hpp>
 
 #include "gtx/VertexBuffer.h"
+#include "gtx/ModelLoader.h"
 #include "gtx/Debugger.h"
+#include "imgui.h"
 
 #include <GLFW/glfw3.h>
+#include <string_view>
 
 namespace tests
 {
+namespace
+{
+    constexpr std::string_view k_TestName        {"3D File Model"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/3DModelTrivial.vertex"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/3DModelTrivial.fragment"};
+    const std::filesystem::path k_ModelFile      {"res/3dmodels/cube.obj"};
+}// anonymous namespace
+
 Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
-:m_shader("res/Shaders/3DModelTrivial.vertex", "res/Shaders/3DModelTrivial.fragment")
+    :m_shader(k_VertexShader, k_FragmentShader),
+    m_wireFrame(false)
 {
     // load shaders.
     m_shader.CreateShader();
@@ -24,7 +36,7 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
     std::vector<glm::vec3> normals;
 
     ModelLoader mdl;
-    mdl.LoadOBJ("res/3dmodels/cube.obj", vertices, uvs, normals);
+    mdl.LoadOBJ(k_ModelFile, vertices, uvs, normals);
     m_numvertices = vertices.size();
 
     m_vao.Bind();
@@ -56,13 +68,25 @@ Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
     glDepthFunc(GL_LESS);
     // cull clock wise (winding order) back faces (triangles).
     glEnable(GL_CULL_FACE);
+}
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+Trivial3DModel::~Trivial3DModel()
+{
+    glDepthFunc(GL_LESS);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+}
+
+std::string_view Trivial3DModel::GetName() const
+{
+    return k_TestName;
 }
 
 void Trivial3DModel::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, m_wireFrame ? GL_LINE : GL_FILL);
+
     m_shader.Bind();
 
     const float radius{10.0f};
@@ -73,6 +97,12 @@ void Trivial3DModel::OnRender()
     m_shader.SetUniformMat4f("MVP", glm::mat4(projectionMatrix * view * modelMatrix));
 
     glDrawArrays(GL_TRIANGLES, 0, m_numvertices);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
+void Trivial3DModel::OnImGuiRender()
+{
+    ImGui::Checkbox("wire frame", &m_wireFrame);
 }
+}// namespace tests
