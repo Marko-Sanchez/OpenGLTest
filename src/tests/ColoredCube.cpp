@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "gtx/CameraControls.h"
 #include "gtx/VertexBuffer.h"
@@ -96,6 +97,9 @@ void ColoredCube::OnRender()
 {
     auto currentTime {static_cast<float>(glfwGetTime())};
     auto modelmatrix {glm::mat4(1.0f)};
+
+    // rotate on xy-axis.
+    modelmatrix = glm::rotate(modelmatrix, currentTime, glm::vec3(1.f, 1.f, 0.f));
 
     this->ProcessKeyboardInput(currentTime - m_lastFrameTime);
 
