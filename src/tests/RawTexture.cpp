@@ -109,7 +109,7 @@ void RawTexture::OnRender()
     m_shader.Bind();
     glBindVertexArray(m_vao);
 
-    // since the ibo was bound to vao we can set the last parameter to nullptr. 12 is based on num elements in ibuffer.
-    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
+    // since the ibo was bound to vao we can set the last parameter to nullptr.
+    glDrawElements(GL_TRIANGLES, k_IndexBuffer.size(), GL_UNSIGNED_INT, nullptr);
 }
 }// namespace tests
