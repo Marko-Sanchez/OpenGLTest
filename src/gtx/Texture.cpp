@@ -111,7 +111,10 @@ unsigned int Texture::UploadBMP(const std::filesystem::path& imagePath, unsigned
     unsigned char header[BMP_HEADER_SIZE];
     unsigned int dataPos, width, height, imageSize;
 
-    std::unique_ptr<FILE, decltype(std::fclose) *> uptr_file(std::fopen(imagePath.c_str(), "rb"), std::fclose);
+    // hidden attributes attached to std::fclose() by gcc are passed to unique_ptr, compiler does not understand
+    // how to intepret those attributes; therfore, drops them and throws a warning.
+    auto filedeleter = [](FILE* file){if (file) std::fclose(file);};
+    std::unique_ptr<FILE, decltype(filedeleter)> uptr_file(std::fopen(imagePath.c_str(), "rb"), filedeleter);
     if ( (std::fread(header, 1, BMP_HEADER_SIZE, uptr_file.get()) != BMP_HEADER_SIZE)
         and (header[0] != 'B' or header[1] != 'M') )
     {

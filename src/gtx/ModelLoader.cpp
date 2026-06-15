@@ -28,7 +28,8 @@ bool ModelLoader::LoadOBJ(const std::filesystem::path& path, std::vector<glm::ve
     std::vector<glm::vec2> temp_uvs;
     std::vector<glm::vec3> temp_normals;
 
-    std::unique_ptr<FILE, decltype(std::fclose)&> file(std::fopen(path.c_str(), "r"), std::fclose);
+    auto filedeleter = [](FILE* file){if (file) std::fclose(file);};
+    std::unique_ptr<FILE, decltype(filedeleter)> file(std::fopen(path.c_str(), "r"), filedeleter);
     if (file && file.get() == nullptr)
         return false;
 
