@@ -1,8 +1,11 @@
 #include "Skybox.h"
 
-#include <vector>
+#include <filesystem>
+#include <string_view>
+#include <array>
 #include <string>
 
+#include "gtx/Texture.h"
 #include "gtx/VertexBuffer.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -15,14 +18,18 @@
 
 namespace tests
 {
-Skybox::Skybox(std::shared_ptr<void> window):
-m_lastFrameTime(0.0f),
-m_firstMouseMovement(true),
-m_window(std::reinterpret_pointer_cast<GLFWwindow>(window)),
-m_cubeShader("res/Shaders/SkyboxCube.vertex", "res/Shaders/SkyboxCube.fragment"),
-m_skyboxShader("res/Shaders/Skybox.vertex", "res/Shaders/Skybox.fragment")
+namespace
 {
-    const std::vector<std::string> faces
+    constexpr std::string_view k_TestName {"Sky Box"};
+
+    const std::filesystem::path k_CubeVertexShader     {"res/Shaders/SkyboxCube.vertex"};
+    const std::filesystem::path k_CubeFragmentShader   {"res/Shaders/SkyboxCube.fragment"};
+    const std::filesystem::path k_SkyBoxVertexShader   {"res/Shaders/Skybox.vertex"};
+    const std::filesystem::path k_SkyBoxFragmentShader {"res/Shaders/Skybox.fragment"};
+
+    // note: the order matters, since texture targets are mapped to orientation and then incremented
+    // by one in loop: such that, GL_TEXTURE_CUBE_MAP_POSITIVE_X == right.jpg, etc.
+    const std::array<std::filesystem::path, 6> k_CubeFaces
     {
         "res/images/skybox/right.jpg",
         "res/images/skybox/left.jpg",
@@ -32,7 +39,7 @@ m_skyboxShader("res/Shaders/Skybox.vertex", "res/Shaders/Skybox.fragment")
         "res/images/skybox/back.jpg"
     };
 
-    const std::vector<float> cubeVertices =
+    constexpr std::array<float, 216> k_CubeVertices
     {
         // positions          // normals
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -77,7 +84,8 @@ m_skyboxShader("res/Shaders/Skybox.vertex", "res/Shaders/Skybox.fragment")
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
-    const std::vector<float> skyboxVertices =
+
+    constexpr std::array<float, 108> k_SkyBoxVertices
     {
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -121,11 +129,20 @@ m_skyboxShader("res/Shaders/Skybox.vertex", "res/Shaders/Skybox.fragment")
         -1.0f, -1.0f,  1.0f,
          1.0f, -1.0f,  1.0f
     };
+}// anonymous namespace
+
+Skybox::Skybox(std::shared_ptr<void> window)
+    :m_lastFrameTime(0.0f),
+    m_firstMouseMovement(true),
+    m_window(std::reinterpret_pointer_cast<GLFWwindow>(window)),
+    m_cubeShader( k_CubeVertexShader, k_CubeFragmentShader),
+    m_skyboxShader( k_SkyBoxVertexShader, k_SkyBoxFragmentShader)
+{
     // ---- CUBE ----
     m_cubeVAO.Bind();
 
     m_cubeVBO.Bind();
-    m_cubeVBO.CreateBuffer(cubeVertices);
+    m_cubeVBO.CreateBuffer(k_CubeVertices);
 
     m_cubeVAO.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(0));
     m_cubeVAO.AddAttribute(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
@@ -137,14 +154,14 @@ m_skyboxShader("res/Shaders/Skybox.vertex", "res/Shaders/Skybox.fragment")
     m_skyboxVAO.Bind();
 
     m_skyboxVBO.Bind();
-    m_skyboxVBO.CreateBuffer(skyboxVertices);
+    m_skyboxVBO.CreateBuffer(k_SkyBoxVertices);
 
     m_skyboxVAO.AddAttribute(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
 
     m_skyboxShader.CreateShader();
     m_skyboxShader.Bind();
 
-    m_texture.UploadCubeMap(faces);
+    m_cubeTexture.UploadCubeMap(k_CubeFaces);
 
 
     // TODO: Note once cursor is diabled it is unable to interact with ImGui. fix later.
@@ -164,6 +181,11 @@ m_skyboxShader("res/Shaders/Skybox.vertex", "res/Shaders/Skybox.fragment")
     glEnable(GL_DEPTH_TEST);
 }
 
+std::string_view Skybox::GetName() const
+{
+    return k_TestName;
+}
+
 void Skybox::OnRender()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -171,7 +193,7 @@ void Skybox::OnRender()
     // Draw cube.
     m_cubeShader.Bind();
     m_cubeVAO.Bind();
-    m_texture.Bind("cubemap");
+    m_cubeTexture.Bind("cubemap", GL_TEXTURE_CUBE_MAP);
 
     m_cubeShader.SetUniformMat4f("u_model", glm::mat4(1.0f));
     m_cubeShader.SetUniformMat4f("u_view", m_camera.GetViewMatrix());
@@ -189,7 +211,7 @@ void Skybox::OnRender()
     glDepthFunc(GL_LEQUAL);
     m_skyboxShader.Bind();
     m_skyboxVAO.Bind();
-    m_texture.Bind("cubemap");
+    m_cubeTexture.Bind("cubemap", GL_TEXTURE_CUBE_MAP);
 
     float currentTime{static_cast<float>(glfwGetTime())};
     ProcessKeyboardInput(currentTime - m_lastFrameTime);

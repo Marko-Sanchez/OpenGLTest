@@ -2,6 +2,8 @@
 
 #include "Test.h"
 
+#include <string_view>
+
 #include "gtx/Shaders.h"
 #include "gtx/Texture.h"
 #include "gtx/VertexBuffer.h"
@@ -10,7 +12,7 @@
 
 namespace tests
 {
-class Skybox: public Test
+class Skybox final: public Test
 {
     private:
 
@@ -21,7 +23,7 @@ class Skybox: public Test
 
         std::shared_ptr<GLFWwindow> m_window;
 
-        Texture m_texture;
+        Texture m_cubeTexture;
 
         Shaders      m_cubeShader;
         VertexArray  m_cubeVAO;
@@ -33,14 +35,15 @@ class Skybox: public Test
 
         Camera m_camera;
 
+        void ProcessKeyboardInput(float deltaTime);
+        void MouseCallback(GLFWwindow *window, double xposIn, double yposIn);
+        void ScrollWheelCallback(GLFWwindow *window, double xposIn, double yposIn);
+
     public:
 
         Skybox(std::shared_ptr<void> window);
 
+        std::string_view GetName() const override;
         void OnRender() override;
-
-        void ProcessKeyboardInput(float deltaTime);
-        void MouseCallback(GLFWwindow *window, double xposIn, double yposIn);
-        void ScrollWheelCallback(GLFWwindow *window, double xposIn, double yposIn);
 };
-}
+}// namespace tests
