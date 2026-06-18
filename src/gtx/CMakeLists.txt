@@ -19,6 +19,8 @@ add_library(opengltest-gtx
     VertexBuffer.cpp
     VertexBufferLayout.h
     VertexBufferLayout.cpp
+    Mesh.h
+    Mesh.cpp
 )
 
 target_include_directories(opengltest-gtx
@@ -30,6 +32,7 @@ target_link_libraries(opengltest-gtx
     PUBLIC
         GL
         GLEW::GLEW
+        assimp
         glm::glm
         Threads::Threads
         stb
