@@ -6,27 +6,26 @@
 #include <filesystem>
 #include <memory>
 #include <ostream>
-#include <utility>
 
 #include "GL/glew.h"
 
 #include <stb_image.h>
 
 Texture::Texture()
-{}
+{
+    stbi_set_flip_vertically_on_load(1);
+}
 
 Texture::~Texture()
 {
-    for(const auto&[textureName, textureSlot]: m_textures)
+    for(const auto&[textureName, textureID]: m_textures)
     {
-        glDeleteTextures(1, &textureSlot.first);
+        glDeleteTextures(1, &textureID);
     }
 }
 
-// TODO: m_texture["cubemap"] is hard coded as well as activetexture.
-// although since this is a sky box, telling the use to use GL_TEXTURE0
-// could be a thing.
-unsigned int Texture::UploadCubeMap(const std::array<std::filesystem::path, 6>& faces)
+// TODO: m_texture["cubemap"] is hard coded.
+GLuint Texture::UploadCubeMap(const std::array<std::filesystem::path, 6>& faces)
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
@@ -54,25 +53,21 @@ unsigned int Texture::UploadCubeMap(const std::array<std::filesystem::path, 6>& 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    m_textures["cubemap"] = std::make_pair(textureID, GL_TEXTURE0);
+    m_textures["cubemap"] = textureID;
     return textureID;
 }
 
-unsigned int Texture::UploadTexture(const std::string& name, const std::filesystem::path& imagePath, unsigned int textureSlot = 0)
+GLuint Texture::UploadTexture(const std::string& name, const std::filesystem::path& imagePath)
 {
     if (!std::filesystem::exists(imagePath))
     {
         std::cerr << "Filepath " << imagePath << "\ndoes not exist." << std::endl;
         return GLuint(-1);
     }
-    else if (m_textures.find(name) != m_textures.end())
+    else if (auto iter = m_textures.find(name); iter != m_textures.end())
     {
-        std::cerr << "Texture with the name: (" << name << ") Already Exist !" << std::endl;
-        return GLuint(-1);
+        return iter->second;
     }
-
-    // sometimes image might be flipped to setting this fixes it.
-    stbi_set_flip_vertically_on_load(1);
 
     int width{0}, height{0}, bpp{0};
     std::unique_ptr<unsigned char[], decltype(stbi_image_free) *> buffer(stbi_load(imagePath.c_str(), &width, &height, &bpp, 4), stbi_image_free);
@@ -80,19 +75,20 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::filesyst
     {
         unsigned int textureID{0};
         glGenTextures(1, &textureID);
-        glActiveTexture(GL_TEXTURE0 + textureSlot);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
 
         // must specify these or will get black screen.
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         // send data to opengl.
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.get());
+        glGenerateMipmap(GL_TEXTURE_2D);
 
-        m_textures[name] = std::make_pair(textureID, textureSlot);
+        m_textures[name] = textureID;
 
         return textureID;
     }
@@ -104,7 +100,7 @@ unsigned int Texture::UploadTexture(const std::string& name, const std::filesyst
     }
 }
 
-unsigned int Texture::UploadBMP(const std::filesystem::path& imagePath, unsigned int textureSlot)
+GLuint Texture::UploadBMP(const std::filesystem::path& imagePath)
 {
     const int BMP_HEADER_SIZE{54};
 
@@ -143,10 +139,10 @@ unsigned int Texture::UploadBMP(const std::filesystem::path& imagePath, unsigned
         return uint(-1);
     }
 
-    unsigned int textureName;
-    glGenTextures(1, &textureName);
-    glActiveTexture(GL_TEXTURE0 + textureSlot);
-    glBindTexture(GL_TEXTURE_2D, textureName);
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data.get());
     /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); */
@@ -159,27 +155,26 @@ unsigned int Texture::UploadBMP(const std::filesystem::path& imagePath, unsigned
     // ... which requires mipmaps. Generate them automatically.
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    m_textures["BMP"] = std::make_pair(textureName, textureSlot);
+    m_textures["BMP"] = textureID;
 
     GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error: " << err << std::endl;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        std::cerr << "UploadBMP(): OpenGL Error ->" << err << std::endl;
     }
 
-    return textureName;
+    return textureID;
 }
 
 /*
 * Select which texture unit the subsequent state calls will affect.
-* There are 0 -> (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1 ) texture slots available.
 */
 void Texture::Bind(const std::string& name, GLenum target)
 {
 
     if(auto it = m_textures.find(name); it != m_textures.end())
     {
-        glActiveTexture(GL_TEXTURE0 + it->second.second);
-        glBindTexture(target, it->second.first);
+        glBindTexture(target, it->second);
     }
     else
     {
@@ -199,24 +194,13 @@ void Texture::UnBind() const
 * @param:
 * {const std::string& name}: name of texture.
 */
-unsigned int Texture::GetTextureName(const std::string& name) const
+GLuint Texture::GetTextureName(const std::string& name) const
 {
     if (auto it = m_textures.find(name); it != m_textures.end())
     {
-        return it->second.first;
+        return it->second;
     }
 
     std::cerr << "Name: " << name << " Not Found." << std::endl;
     return GLuint(-1);
-}
-
-/*
-* Returns a single value indicating the current multitexture unit. Initial value is 0.
-*/
-int Texture::GetActiveTexture() const
-{
-    int texture;
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &texture);
-
-    return (texture - GL_TEXTURE0);
 }

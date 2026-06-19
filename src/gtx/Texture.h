@@ -14,22 +14,19 @@ class Texture
 {
     private:
 
-        // first value: texture name, second: texture slot.
-        using nameslot = std::pair<unsigned int, unsigned int>;
-        std::unordered_map<std::string, nameslot> m_textures;
+        std::unordered_map<std::string, GLuint> m_textures;
 
     public:
 
         Texture();
         ~Texture();
 
-        unsigned int UploadCubeMap(const std::array<std::filesystem::path, 6>& faces);
-        unsigned int UploadTexture(const std::string& name, const std::filesystem::path& imagePath, unsigned int textureSlot);
-        unsigned int UploadBMP(const std::filesystem::path& imagePath, unsigned int textureSlot);
+        GLuint UploadCubeMap(const std::array<std::filesystem::path, 6>& faces);
+        GLuint UploadTexture(const std::string& name, const std::filesystem::path& imagePath);
+        GLuint UploadBMP(const std::filesystem::path& imagePath);
 
         void Bind(const std::string& name, GLenum target = GL_TEXTURE_2D);
         void UnBind() const;
 
-        unsigned int GetTextureName(const std::string& name) const;
-        int GetActiveTexture() const;
+        GLuint GetTextureName(const std::string& name) const;
 };

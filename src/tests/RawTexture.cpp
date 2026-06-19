@@ -83,8 +83,8 @@ RawTexture::RawTexture(std::shared_ptr<void> window)
     int textureSampler[2] = {0, 1};
     m_shader.SetUniform1iv("texturez", 2, textureSampler);
 
-    GLuint cheese_texturename = m_texture.UploadTexture("cheese", k_Image1, textureSampler[0]);
-    GLuint nacho_texturename  = m_texture.UploadTexture("nacho", k_Image2, textureSampler[1]);
+    GLuint cheese_texturename = m_texture.UploadTexture("cheese", k_Image1);
+    GLuint nacho_texturename  = m_texture.UploadTexture("nacho", k_Image2);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, cheese_texturename);

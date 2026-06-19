@@ -193,6 +193,8 @@ void Skybox::OnRender()
     // Draw cube.
     m_cubeShader.Bind();
     m_cubeVAO.Bind();
+
+    glActiveTexture(GL_TEXTURE0);
     m_cubeTexture.Bind("cubemap", GL_TEXTURE_CUBE_MAP);
 
     m_cubeShader.SetUniformMat4f("u_model", glm::mat4(1.0f));
@@ -211,7 +213,6 @@ void Skybox::OnRender()
     glDepthFunc(GL_LEQUAL);
     m_skyboxShader.Bind();
     m_skyboxVAO.Bind();
-    m_cubeTexture.Bind("cubemap", GL_TEXTURE_CUBE_MAP);
 
     float currentTime{static_cast<float>(glfwGetTime())};
     ProcessKeyboardInput(currentTime - m_lastFrameTime);

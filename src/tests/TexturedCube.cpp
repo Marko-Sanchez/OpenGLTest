@@ -110,9 +110,12 @@ TexturedCube::TexturedCube(std::shared_ptr<void> window)
     glm::mat4 viewMatrix = glm::lookAt(cameraPosition, cameraTarget, cameraUp);
 
     m_shader.SetUniformMat4f("u_mvp", m_projMatrix * viewMatrix * m_modelMatrix);
-    m_shader.SetUniform1i("u_texture", 1);
 
-    m_texture.UploadTexture("dirt", k_Image, 1);
+    m_texture.UploadTexture("dirt", k_Image);
+
+    // active texture and uniform value should be the same.
+    glActiveTexture(GL_TEXTURE0);
+    m_shader.SetUniform1i("u_texture", 0);
     m_texture.Bind("dirt");
 
     glEnable(GL_DEPTH_TEST);

@@ -1,5 +1,6 @@
 #include "MultiTexture.h"
 
+#include <GL/gl.h>
 #include <array>
 #include <cstddef>
 #include <filesystem>
@@ -78,13 +79,13 @@ MultiTexture::MultiTexture(std::shared_ptr<void> window)
     int textureSampler[] = {0, 1, 2};
     m_shader.SetUniform1iv("u_Textures", 3, textureSampler);
 
-    m_texture.UploadTexture("cheese", k_Image1, textureSampler[0]);
+    m_texture.UploadTexture("cheese", k_Image1);
     m_textureTranslations.emplace_back("cheese", glm::vec3(0.5f, 0.5f, 0.0f));
 
-    m_texture.UploadTexture("nacho", k_Image2, textureSampler[1]);
+    m_texture.UploadTexture("nacho", k_Image2);
     m_textureTranslations.emplace_back("nacho", glm::vec3(0.0f, 0.0f, 0.0f));
 
-    m_texture.UploadTexture("dirt", k_Image3, textureSampler[2]);
+    m_texture.UploadTexture("dirt", k_Image3);
     m_textureTranslations.emplace_back("dirt", glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
@@ -106,6 +107,7 @@ void MultiTexture::OnRender()
         glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i].translation);
         glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
 
+        glActiveTexture(GL_TEXTURE0 + i);
         m_texture.Bind(m_textureTranslations[i].name);
 
         // sends modified mvp value to shader.
