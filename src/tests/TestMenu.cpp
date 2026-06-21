@@ -7,7 +7,8 @@ namespace tests
 namespace
 {
     constexpr std::string_view k_TestName {"Test Menu"};
-}
+    constexpr ImVec2 k_ButtonSize         {256, 24};
+}// anonymous namespace
 
 TestMenu::TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer)
     :g_window(window),
@@ -23,7 +24,7 @@ void TestMenu::OnImGuiRender()
 {
     for (auto& [name, test]: m_tests)
     {
-        if (ImGui::Button(name.c_str()))
+        if (ImGui::Button(name.c_str(), k_ButtonSize))
             m_currentTest = test(g_window);
     }
 }

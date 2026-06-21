@@ -98,7 +98,7 @@ int main ()
         {
             sprintf(ImGuiTitleBuffer, "Test Menu - %s ###WindowTitle", currentTest->GetName().data());
             ImGui::Begin(ImGuiTitleBuffer);
-            if (currentTest != testMenu && (ImGui::Button("<-") || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
+            if (currentTest != testMenu && (ImGui::ArrowButton("##left", ImGuiDir_Left) || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
             {
                 currentTest = testMenu;
             }
