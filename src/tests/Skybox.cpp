@@ -22,8 +22,8 @@ namespace tests
 {
 namespace
 {
-    constexpr std::string_view k_TestName   {"Sky Box"};
-    constexpr std::string_view k_SkyBoxName {"skybox"};
+    constexpr std::string_view k_TestName {"Sky Box"};
+    constexpr std::string_view k_CubeName {"reflectingcube"};
 
     const std::filesystem::path k_CubeVertexShader     {"res/Shaders/SkyboxCube.vert"};
     const std::filesystem::path k_CubeFragmentShader   {"res/Shaders/SkyboxCube.frag"};
@@ -164,7 +164,7 @@ Skybox::Skybox(std::shared_ptr<void> window)
     m_skyboxShader.CreateShader();
     m_skyboxShader.Bind();
 
-    m_cubeTexture.UploadCubeMap(k_SkyBoxName.data(), k_CubeFaces);
+    m_cubeTexture.UploadCubeMap(k_CubeName.data(), k_CubeFaces);
 
     // TODO: Note once cursor is diabled it is unable to interact with ImGui. fix later.
     // set mouse callback.
@@ -197,12 +197,12 @@ void Skybox::OnRender()
     m_cubeVAO.Bind();
 
     glActiveTexture(GL_TEXTURE0);
-    m_cubeTexture.Bind("cubemap", GL_TEXTURE_CUBE_MAP);
+    m_cubeTexture.Bind(k_CubeName.data());
 
     m_cubeShader.SetUniformMat4f("u_model", glm::mat4(1.0f));
     m_cubeShader.SetUniformMat4f("u_view", m_camera.GetViewMatrix());
     m_cubeShader.SetUniformMat4f("u_projection", glm::perspective(glm::radians(m_camera.GetZoom()), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f));
-    m_cubeShader.SetUniform3fv("u_cameraPos", 1, glm::value_ptr(m_camera.GetCameraPos()));
+    m_cubeShader.SetUniform3fv("u_viewPos", 1, glm::value_ptr(m_camera.GetCameraPos()));
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -213,6 +213,7 @@ void Skybox::OnRender()
     // sky box depth buffer is 1, we only have to render skybox fragments where the early depth buffer passes.
     // since the max depth buffer value is 1 and we set it to 1 in the vertex buffer we use GL_LEQUAL.
     glDepthFunc(GL_LEQUAL);
+
     m_skyboxShader.Bind();
     m_skyboxVAO.Bind();
 
@@ -230,7 +231,17 @@ void Skybox::OnRender()
     m_skyboxShader.SetUniformMat4f("u_view", glm::mat4(glm::mat3(m_camera.GetViewMatrix())));
     m_skyboxShader.SetUniformMat4f("u_projection", glm::perspective(glm::radians(m_camera.GetZoom()), static_cast<float>(4.0f/4.0f), 0.1f, 100.0f));
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
     glDepthFunc(GL_LESS);
+}
+
+void Skybox::OnImGuiRender()
+{
+     ImGui::TextWrapped("Moving mouse changes what direction your looking at.");
+     ImGui::NewLine();
+     ImGui::TextWrapped("Use mouse wheel zoom in / zoom out.");
+     ImGui::NewLine();
+     ImGui::TextWrapped("Use Arrowkeys to move around in space.");
 }
 
 /*
