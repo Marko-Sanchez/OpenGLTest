@@ -21,12 +21,18 @@ class Texture
         Texture();
         ~Texture();
 
-        GLuint UploadCubeMap(const std::array<std::filesystem::path, 6>& faces);
+        Texture(const Texture&)            = delete;
+        Texture& operator=(const Texture&) = delete;
+        Texture(Texture&&)                 = delete;
+        Texture& operator=(Texture&&)      = delete;
+
+
+        GLuint UploadCubeMap(const std::string& name, const std::array<std::filesystem::path, 6>& faces);
         GLuint UploadTexture(const std::string& name, const std::filesystem::path& imagePath);
         GLuint UploadBMP(const std::filesystem::path& imagePath);
 
         void Bind(const std::string& name, GLenum target = GL_TEXTURE_2D);
-        void UnBind() const;
+        void UnBind(GLenum target = GL_TEXTURE_2D) const;
 
         GLuint GetTextureName(const std::string& name) const;
 };

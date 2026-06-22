@@ -12,9 +12,7 @@
 #include <stb_image.h>
 
 Texture::Texture()
-{
-    stbi_set_flip_vertically_on_load(1);
-}
+{}
 
 Texture::~Texture()
 {
@@ -24,9 +22,10 @@ Texture::~Texture()
     }
 }
 
-// TODO: m_texture["cubemap"] is hard coded.
-GLuint Texture::UploadCubeMap(const std::array<std::filesystem::path, 6>& faces)
+GLuint Texture::UploadCubeMap(const std::string& name, const std::array<std::filesystem::path, 6>& faces)
 {
+    stbi_set_flip_vertically_on_load(false);
+
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glActiveTexture(GL_TEXTURE0);
@@ -53,12 +52,14 @@ GLuint Texture::UploadCubeMap(const std::array<std::filesystem::path, 6>& faces)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    m_textures["cubemap"] = textureID;
+    m_textures[name] = textureID;
     return textureID;
 }
 
 GLuint Texture::UploadTexture(const std::string& name, const std::filesystem::path& imagePath)
 {
+    stbi_set_flip_vertically_on_load(true);
+
     if (!std::filesystem::exists(imagePath))
     {
         std::cerr << "Filepath " << imagePath << "\ndoes not exist." << std::endl;
@@ -145,8 +146,6 @@ GLuint Texture::UploadBMP(const std::filesystem::path& imagePath)
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data.get());
-    /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); */
-    /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); */
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -182,10 +181,9 @@ void Texture::Bind(const std::string& name, GLenum target)
     }
 }
 
-// TODO: Does not un-bind cubemap.
-void Texture::UnBind() const
+void Texture::UnBind(GLenum target) const
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(target, 0);
 }
 
 /*
