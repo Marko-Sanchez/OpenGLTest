@@ -1,18 +1,18 @@
 #version 330 core
 
-in vec3 Normal;
-in vec3 Position;
+out vec4 f_color;
 
-out vec4 FragColor;
+in vec3 v_normal;
+in vec3 v_position;
 
-uniform vec3        u_cameraPos;
-uniform samplerCube skybox;
+uniform vec3        u_viewPos;
+uniform samplerCube u_skybox;
 
 void main()
 {
-    vec3 I = normalize(Position - u_cameraPos);
-    vec3 R = reflect(I, normalize(Normal));
+    vec3 I = normalize(v_position - u_viewPos);
+    vec3 R = reflect(I, normalize(v_normal));
 
     // use skybox texture to create a reflection on the cube.
-    FragColor = vec4(texture(skybox, R).rgb, 1.0);
+    f_color = vec4(texture(u_skybox, R).rgb, 1.0);
 }

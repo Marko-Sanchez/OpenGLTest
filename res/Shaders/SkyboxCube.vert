@@ -1,10 +1,10 @@
 #version 330 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
+layout (location = 0) in vec3 a_position;
+layout (location = 1) in vec3 a_normal;
 
-out vec3 Normal;
-out vec3 Position;
+out vec3 v_normal;
+out vec3 v_position;
 
 uniform mat4 u_model;
 uniform mat4 u_view;
@@ -12,8 +12,8 @@ uniform mat4 u_projection;
 
 void main()
 {
-    Normal   = mat3(transpose(inverse(u_model))) * aNormal;
-    Position = vec3(u_model * vec4(aPos, 1.0));
+    v_normal   = mat3(transpose(inverse(u_model))) * a_normal;
+    v_position = vec3(u_model * vec4(a_position, 1.0));
 
-    gl_Position = u_projection * u_view * vec4(Position, 1.0);
+    gl_Position = u_projection * u_view * vec4(v_position, 1.0);
 }

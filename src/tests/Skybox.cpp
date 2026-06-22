@@ -16,16 +16,19 @@
 #include <GLFW/glfw3.h>
 #include <GL/gl.h>
 
+#include <imgui.h>
+
 namespace tests
 {
 namespace
 {
-    constexpr std::string_view k_TestName {"Sky Box"};
+    constexpr std::string_view k_TestName   {"Sky Box"};
+    constexpr std::string_view k_SkyBoxName {"skybox"};
 
-    const std::filesystem::path k_CubeVertexShader     {"res/Shaders/SkyboxCube.vertex"};
-    const std::filesystem::path k_CubeFragmentShader   {"res/Shaders/SkyboxCube.fragment"};
-    const std::filesystem::path k_SkyBoxVertexShader   {"res/Shaders/Skybox.vertex"};
-    const std::filesystem::path k_SkyBoxFragmentShader {"res/Shaders/Skybox.fragment"};
+    const std::filesystem::path k_CubeVertexShader     {"res/Shaders/SkyboxCube.vert"};
+    const std::filesystem::path k_CubeFragmentShader   {"res/Shaders/SkyboxCube.frag"};
+    const std::filesystem::path k_SkyBoxVertexShader   {"res/Shaders/Skybox.vert"};
+    const std::filesystem::path k_SkyBoxFragmentShader {"res/Shaders/Skybox.frag"};
 
     // note: the order matters, since texture targets are mapped to orientation and then incremented
     // by one in loop: such that, GL_TEXTURE_CUBE_MAP_POSITIVE_X == right.jpg, etc.
@@ -161,8 +164,7 @@ Skybox::Skybox(std::shared_ptr<void> window)
     m_skyboxShader.CreateShader();
     m_skyboxShader.Bind();
 
-    m_cubeTexture.UploadCubeMap(k_CubeFaces);
-
+    m_cubeTexture.UploadCubeMap(k_SkyBoxName.data(), k_CubeFaces);
 
     // TODO: Note once cursor is diabled it is unable to interact with ImGui. fix later.
     // set mouse callback.
