@@ -17,8 +17,8 @@ namespace tests
 namespace
 {
     constexpr std::string_view k_TestName        {"Multi-Texture"};
-    const std::filesystem::path k_VertextShader  {"res/Shaders/Multiple.vertex"};
-    const std::filesystem::path k_FragmentShader {"res/Shaders/Multiple.fragment"};
+    const std::filesystem::path k_VertextShader  {"res/Shaders/MultiTexture.vert"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/MultiTexture.frag"};
 
     const std::filesystem::path k_Image1 {"res/images/cheese.png"};
     const std::filesystem::path k_Image2 {"res/images/nachowink.png"};
@@ -71,7 +71,7 @@ MultiTexture::MultiTexture(std::shared_ptr<void> window)
     // if we modify the model matrix 'z' variable past (bottom: -1.0f, top: 1.0f) the texture will clip
     // out of existence.
     // https://www.youtube.com/watch?v=V87lLvKscIY (ortho visual example).
-    m_projectionMatrix = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -1.0f, 1.0f);
+    m_projectionMatrix = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, -1.0f, 1.0f);
     // we are not modifying the 'camera' so we create a identity matrix as a placeholder.
     m_viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0, 0));
 

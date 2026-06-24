@@ -2,12 +2,12 @@
 
 layout (location = 0) in vec2 a_Position;
 layout (location = 1) in vec2 a_TexCord;
-layout (location = 2) in int a_TexIndex;
+layout (location = 2) in int  a_TexIndex;
 
 uniform mat4 u_MVP;
 
 flat out int v_TexIndex;
-out vec2 v_TexCord;
+out vec2     v_TexCord;
 
 void main()
 {
