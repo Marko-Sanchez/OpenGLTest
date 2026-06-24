@@ -6,9 +6,6 @@
 #include <array>
 
 #include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
-#include <glm/trigonometric.hpp>
 #include <imgui.h>
 
 namespace tests
@@ -38,27 +35,34 @@ BatchRendering::BatchRendering(std::shared_ptr<void> window)
     const float bufferStoreSize {16/*Rows*/ * 8/*Cols*/ * 6/*# Vertices in Rect.*/};
     m_vertices.reserve(bufferStoreSize);
 
-    m_va.Bind();
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);// vao is now active.
 
     // generate vertex buffer and allocate memory (1).
-    glGenBuffers(1, &m_vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);// vbo is now active on GL_ARRAY_BUFFER.
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * bufferStoreSize, nullptr, GL_STATIC_DRAW);
 
-    m_va.AddAttribute(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
-    m_va.AddAttribute(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, color)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, color)));
+    glEnableVertexAttribArray(1);
+
+    this->GeneratePositions();
 
     m_shader.CreateShader();
     m_shader.Bind();
 
     // ortho helps normalize our data between [-1,1]; (0, 0) -> (-1, -1)
     m_shader.SetUniformMat4f("u_MVP", glm::ortho(0.f, 512.f, 0.f, 1024.f, -1.f, 1.f));
-    this->GeneratePositions();
+
+    glBindVertexArray(0);
 }
 
 BatchRendering::~BatchRendering()
 {
-    glDeleteBuffers(1, &m_vertexBuffer);
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
 }
 
 std::string_view BatchRendering::GetName() const
@@ -76,11 +80,12 @@ void BatchRendering::OnRender()
     glPolygonMode(GL_FRONT_AND_BACK, m_wireFrame ? GL_LINE: GL_FILL);
 
     m_shader.Bind();
-    m_va.Bind();
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    glBindVertexArray(m_vao);
 
     // Batch Render all the vertices (2).
     glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+
+    glBindVertexArray(0);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -118,7 +123,8 @@ void BatchRendering::GeneratePositions()
         yPosition += size;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    // remember to bind vbo (if not done so already).
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     // updates a subset of buffer object store in this case 0 -> size of m_vertices<Vertex>
     // buffer object store should be big enough to fit this data, else error is thrown.
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * m_vertices.size(), m_vertices.data());
