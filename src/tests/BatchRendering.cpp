@@ -16,8 +16,8 @@ namespace tests
 namespace
 {
     constexpr std::string_view k_TestName        {"Batch Rendering"};
-    const std::filesystem::path k_VertexShader   {"res/Shaders/Rectangle.vertex"};
-    const std::filesystem::path k_FragmentShader {"res/Shaders/Rectangle.fragment"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/BatchRendering.vert"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/BatchRendering.frag"};
 
     std::array<float, 4> RandomColor()
     {
