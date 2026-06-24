@@ -6,11 +6,11 @@
 
 namespace tests
 {
-class ClearColor: public Test
+class ClearColor final: public Test
 {
     private:
 
-        std::array<float, 4> m_ClearColor;
+        std::array<float, 4> m_clearColor;
 
     public:
 
@@ -20,4 +20,4 @@ class ClearColor: public Test
         void OnRender() override;
         void OnImGuiRender() override;
 };
-}
+}// namespace tests

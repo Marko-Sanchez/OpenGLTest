@@ -3,14 +3,16 @@
 #include <cstddef>
 #include <array>
 
+#include <imgui.h>
+
 namespace tests
 {
 namespace
 {
     constexpr std::string_view k_TestName        {"Raw Texture"};
 
-    const std::filesystem::path k_VertexShader   {"res/Shaders/Raw.vertex"};
-    const std::filesystem::path k_FragmentShader {"res/Shaders/Raw.fragment"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/RawTexture.vert"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/RawTexture.frag"};
     const std::filesystem::path k_Image1         {"res/images/cheese.png"};
     const std::filesystem::path k_Image2         {"res/images/nachowink.png"};
 
@@ -39,21 +41,18 @@ namespace
 RawTexture::RawTexture(std::shared_ptr<void> window)
 :m_shader(k_VertexShader, k_FragmentShader)
 {
-    // VAO must be bound before vbo and ibo are bound.
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    // VAO must be bound before vbo and ebo are bound.
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
 
     // allocate vertex buffer object.
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * k_VertexArray.size(), k_VertexArray.data(), GL_STATIC_DRAW);
 
     // When a buffer is bound to GL_ELEMENT_ARRAY_BUFFER, all drawing commands of the form gl*Draw*Elements* will use indexes from that buffer.
-    GLuint ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glGenBuffers(1, &m_ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * k_IndexBuffer.size(), k_IndexBuffer.data(), GL_STATIC_DRAW);
 
 
@@ -72,16 +71,9 @@ RawTexture::RawTexture(std::shared_ptr<void> window)
     m_shader.CreateShader();
     m_shader.Bind();
 
-    // set vao globally to bind in render.
-    m_vao = vao;
-
-    // set globally to delete buffers in destructor.
-    m_vbo = vbo;
-    m_ibo = ibo;
-
     // Add textures.
     int textureSampler[2] = {0, 1};
-    m_shader.SetUniform1iv("texturez", 2, textureSampler);
+    m_shader.SetUniform1iv("u_Textures", 2, textureSampler);
 
     GLuint cheese_texturename = m_texture.UploadTexture("cheese", k_Image1);
     GLuint nacho_texturename  = m_texture.UploadTexture("nacho", k_Image2);
@@ -95,8 +87,8 @@ RawTexture::RawTexture(std::shared_ptr<void> window)
 RawTexture::~RawTexture()
 {
     glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_ebo);
     glDeleteBuffers(1, &m_vbo);
-    glDeleteBuffers(1, &m_ibo);
 }
 
 std::string_view RawTexture::GetName() const
@@ -109,7 +101,14 @@ void RawTexture::OnRender()
     m_shader.Bind();
     glBindVertexArray(m_vao);
 
-    // since the ibo was bound to vao we can set the last parameter to nullptr.
+    // since the ebo was bound to vao we can set the last parameter to nullptr.
     glDrawElements(GL_TRIANGLES, k_IndexBuffer.size(), GL_UNSIGNED_INT, nullptr);
+
+    glBindVertexArray(0);
+}
+
+void RawTexture::OnImGuiRender()
+{
+    ImGui::TextWrapped("Simple example demonstrating 2D textures.");
 }
 }// namespace tests
