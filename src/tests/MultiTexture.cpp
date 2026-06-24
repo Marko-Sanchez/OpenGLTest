@@ -17,12 +17,12 @@ namespace tests
 namespace
 {
     constexpr std::string_view k_TestName        {"Multi-Texture"};
-    const std::filesystem::path k_VertextShader  {"res/Shaders/MultiTexture.vert"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/MultiTexture.vert"};
     const std::filesystem::path k_FragmentShader {"res/Shaders/MultiTexture.frag"};
 
-    const std::filesystem::path k_Image1 {"res/images/cheese.png"};
-    const std::filesystem::path k_Image2 {"res/images/nachowink.png"};
-    const std::filesystem::path k_Image3 {"res/images/mc.png"};
+    const std::filesystem::path k_CheeseImage {"res/images/cheese.png"};
+    const std::filesystem::path k_NachoImage  {"res/images/nachowink.png"};
+    const std::filesystem::path k_DirtImage   {"res/images/mc.png"};
 
     constexpr std::array<MultiTexture::Vertex, 12> k_VertexArray =
     {{
@@ -52,7 +52,7 @@ namespace
 }// anonymous namespace
 
 MultiTexture::MultiTexture(std::shared_ptr<void> window)
-:m_shader(k_VertextShader, k_FragmentShader)
+:m_shader(k_VertexShader, k_FragmentShader)
 {
     m_vao.Bind();
     m_vbo.CreateBuffer(k_VertexArray);
@@ -79,13 +79,13 @@ MultiTexture::MultiTexture(std::shared_ptr<void> window)
     int textureSampler[] = {0, 1, 2};
     m_shader.SetUniform1iv("u_Textures", 3, textureSampler);
 
-    m_texture.UploadTexture("cheese", k_Image1);
+    m_texture.UploadTexture("cheese", k_CheeseImage);
     m_textureTranslations.emplace_back("cheese", glm::vec3(0.5f, 0.5f, 0.0f));
 
-    m_texture.UploadTexture("nacho", k_Image2);
+    m_texture.UploadTexture("nacho", k_NachoImage);
     m_textureTranslations.emplace_back("nacho", glm::vec3(0.0f, 0.0f, 0.0f));
 
-    m_texture.UploadTexture("dirt", k_Image3);
+    m_texture.UploadTexture("dirt", k_DirtImage);
     m_textureTranslations.emplace_back("dirt", glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
@@ -100,31 +100,34 @@ void MultiTexture::OnRender()
     m_vao.Bind();
 
     // number of vertices to draw.
-    const unsigned int indexElements {6};
+    const auto texturesCount {3};
+    const auto indicesPerTexture {k_IndexArray.size() / texturesCount};
 
     for(size_t i {0}; i < m_textureTranslations.size(); ++i)
     {
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i].translation);
-        glm::mat4 mvp = m_projectionMatrix * m_viewMatrix * model;
-
         glActiveTexture(GL_TEXTURE0 + i);
         m_texture.Bind(m_textureTranslations[i].name);
 
-        // sends modified mvp value to shader.
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), m_textureTranslations[i].translation);
+        glm::mat4 mvp   = m_projectionMatrix * m_viewMatrix * model;
+
+        // Model-View-Projection is updated and affects current active texture.
         m_shader.SetUniformMat4f("u_MVP", mvp);
 
-        const GLvoid* indices = reinterpret_cast<GLvoid*>(i * indexElements * sizeof(unsigned int));
-        glDrawElements(GL_TRIANGLES, indexElements, GL_UNSIGNED_INT, indices);
+        // Draw one texture at a time, to allow for independent movement of texture to be displayed.
+        const auto offset {reinterpret_cast<GLvoid*>(i * indicesPerTexture * sizeof(unsigned int))};
+        glDrawElements(GL_TRIANGLES, indicesPerTexture, GL_UNSIGNED_INT, offset);
     }
 }
 
 void MultiTexture::OnImGuiRender()
 {
-    std::string name {"translation A"};
-    for(size_t i {0}; i < m_textureTranslations.size(); ++i)
+    ImGui::TextWrapped("Example demonstrating multiple moveable texture objects.");
+    ImGui:;ImGui::NewLine();
+
+    for(auto& [name, translation]: m_textureTranslations)
     {
-        name.back() = static_cast<char>('A' + i);
-        ImGui::SliderFloat2(name.c_str(), &m_textureTranslations[i].translation.x, -1.5f, 1.5f);
+        ImGui::SliderFloat2(name.c_str(), &translation.x, -1.5f, 1.5f);
     }
 }
 }// namespace tests
