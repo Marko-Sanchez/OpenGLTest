@@ -1,5 +1,4 @@
 #include "VertexArray.h"
-#include "VertexBuffer.h"
 
 VertexArray::VertexArray()
 :m_objectName(0)
@@ -23,7 +22,7 @@ void VertexArray::UnBind() const
     glBindVertexArray(0);
 }
 
-unsigned int VertexArray::GetName() const
+GLuint VertexArray::GetName() const
 {
     return m_objectName;
 }
