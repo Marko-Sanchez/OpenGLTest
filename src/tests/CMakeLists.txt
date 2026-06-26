@@ -18,6 +18,8 @@ add_library(opengltest-tests
     TexturedCube.cpp
     Trivial3DModel.h
     Trivial3DModel.cpp
+    Instancing.h
+    Instancing.cpp
 )
 
 target_include_directories(opengltest-tests
