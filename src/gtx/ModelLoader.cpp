@@ -24,6 +24,16 @@ void ModelLoader::Draw(Shaders& shader)
     }
 }
 
+const std::vector<Mesh>& ModelLoader::GetMeshes() const
+{
+    return m_meshes;
+}
+
+const Texture& ModelLoader::GetTexture() const
+{
+    return m_textures;
+}
+
 void ModelLoader::LoadModel(const std::filesystem::path& path)
 {
     Assimp::Importer importer;
@@ -124,7 +134,8 @@ void ModelLoader::ProcessMesh(const aiMesh* mesh, const aiScene* scene, const gl
     this->ProcessTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", textures);
     // per-pixel shininess, some areas of a model might be shinier (metals) then others (cloth).
     this->ProcessTextures(material, aiTextureType_SPECULAR, "texture_specular", textures);
-    // this->ProcessTextures(material, aiTextureType_HEIGHT, "texture_normal", textures);
+    this->ProcessTextures(material, aiTextureType_HEIGHT, "texture_normal", textures);
+    // this->ProcessTextures(material, aiTextureType_AMBIENT, "texture_height", textures);
 
     m_meshes.emplace_back(std::move(vv), std::move(indices), std::move(textures));
 }

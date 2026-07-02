@@ -19,8 +19,8 @@ class ModelLoader
 
         std::filesystem::path m_modelDirectory;
 
+        Texture           m_textures;
         std::vector<Mesh> m_meshes;
-        Texture m_textures;
 
         void LoadModel(const std::filesystem::path& path);
         void ProcessNode(aiNode* node, const aiScene* scene, const glm::mat4& parentTransform);
@@ -32,4 +32,7 @@ class ModelLoader
         ModelLoader(const std::filesystem::path& modelFile);
 
         void Draw(Shaders& shader);
+
+        const std::vector<Mesh>& GetMeshes() const;
+        const Texture&           GetTexture() const;
 };
