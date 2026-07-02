@@ -4,18 +4,18 @@
 
 #include <GL/gl.h>
 
-Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<GLuint>&& indices, std::vector<Texture>&& textures)
-    :m_vertices(std::move(vertices)),
-    m_indices(std::move(indices)),
-    m_textures(std::move(textures))
+Mesh::Mesh(std::vector<Vertex>&& verticez, std::vector<GLuint>&& indicez, std::vector<Texture>&& texturez)
+    :vertices(std::move(verticez)),
+    indices(std::move(indicez)),
+    textures(std::move(texturez))
 {
     this->SetupMesh();
 }
 
 Mesh::Mesh(Mesh&& other)
-    :m_vertices(std::move(other.m_vertices)),
-    m_indices(std::move(other.m_indices)),
-    m_textures(std::move(other.m_textures)),
+    :vertices(std::move(other.vertices)),
+    indices(std::move(other.indices)),
+    textures(std::move(other.textures)),
     m_vao(other.m_vao),
     m_vbo(other.m_vbo),
     m_ebo(other.m_ebo)
@@ -41,12 +41,12 @@ void Mesh::SetupMesh()
     // records a valid buffer reference for each attribute
     glGenBuffers(1, &m_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
     // EBO is stored directly in the VAO — must be bound while VAO is active
     glGenBuffers(1, &m_ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), m_indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
@@ -63,10 +63,10 @@ void Mesh::SetupMesh()
 void Mesh::Draw(Shaders& shader)
 {
     // bind textures.
-    GLuint diffuseNr {1}, specularNr {1}, normalNr {1};
-    for (GLuint i {0}; i < m_textures.size(); ++i)
+    GLuint diffuseNr {1}, specularNr {1}, normalNr {1}, heightNr {1};
+    for (GLuint i {0}; i < textures.size(); ++i)
     {
-        std::string name {m_textures[i].type};
+        std::string name {textures[i].type};
 
         if (name == "texture_diffuse")
             name += std::to_string(diffuseNr++);
@@ -74,15 +74,22 @@ void Mesh::Draw(Shaders& shader)
             name += std::to_string(specularNr++);
         else if (name == "texture_normal")
             name += std::to_string(normalNr++);
+        else if (name == "texture_height")
+            name += std::to_string(heightNr++);
 
         glActiveTexture(GL_TEXTURE0 + i);
         shader.SetUniform1i(name, i);
-        glBindTexture(GL_TEXTURE_2D, m_textures[i].texID);
+        glBindTexture(GL_TEXTURE_2D, textures[i].texID);
     }
 
     glBindVertexArray(m_vao);
-    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 
     glActiveTexture(GL_TEXTURE0);
+}
+
+GLuint Mesh::GetVAO() const
+{
+    return m_vao;
 }

@@ -33,11 +33,11 @@ class Mesh
             std::string type;
         };
 
-        std::vector<Vertex>  m_vertices;
-        std::vector<GLuint>  m_indices;
-        std::vector<Texture> m_textures;
+        std::vector<Vertex>  vertices;
+        std::vector<GLuint>  indices;
+        std::vector<Texture> textures;
 
-        Mesh(std::vector<Vertex>&& vertices, std::vector<GLuint>&& indices, std::vector<Texture>&& textures);
+        Mesh(std::vector<Vertex>&& verticez, std::vector<GLuint>&& indicez, std::vector<Texture>&& texturez);
         Mesh(Mesh&& other);
 
         Mesh(const Mesh& other)      = delete;
@@ -47,4 +47,5 @@ class Mesh
         ~Mesh();
 
         void Draw(Shaders& shader);
+        GLuint GetVAO() const;
 };
