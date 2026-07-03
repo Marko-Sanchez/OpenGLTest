@@ -20,6 +20,8 @@ add_library(opengltest-tests
     Trivial3DModel.cpp
     Instancing.h
     Instancing.cpp
+    TextureInstancing.h
+    TextureInstancing.cpp
 )
 
 target_include_directories(opengltest-tests

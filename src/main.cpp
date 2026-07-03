@@ -17,6 +17,7 @@
 #include "tests/BatchRendering.h"
 #include "tests/RawTexture.h"
 #include "tests/ColoredCube.h"
+#include "tests/TextureInstancing.h"
 #include "tests/TexturedCube.h"
 #include "tests/Trivial3DModel.h"
 #include "tests/Skybox.h"
@@ -77,6 +78,7 @@ int main ()
     testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
     testMenu->RegisterTest<tests::MultiTexture>("Multiple Texture");
     testMenu->RegisterTest<tests::Instancing>("Instancing");
+    testMenu->RegisterTest<tests::TextureInstancing>("Texture Instancing");
     testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
     testMenu->RegisterTest<tests::TexturedCube>("Textured Cube");
     testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");

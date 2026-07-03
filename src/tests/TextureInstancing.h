@@ -33,5 +33,6 @@ class TextureInstancing final: public Test
 
         std::string_view GetName() const override;
         void OnRender() override;
+        void OnImGuiRender() override;
 };
 }// namespace tests
