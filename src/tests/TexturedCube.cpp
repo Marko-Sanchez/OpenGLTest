@@ -132,8 +132,6 @@ std::string_view TexturedCube::GetName() const
 
 void TexturedCube::OnRender()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     m_shader.Bind();
     m_vao.Bind();
 

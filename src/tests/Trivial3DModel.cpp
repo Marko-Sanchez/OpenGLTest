@@ -68,7 +68,6 @@ std::string_view Trivial3DModel::GetName() const
 
 void Trivial3DModel::OnRender()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, m_wireFrame ? GL_LINE : GL_FILL);
 
     m_shader.Bind();

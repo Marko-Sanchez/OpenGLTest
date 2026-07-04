@@ -114,8 +114,6 @@ std::string_view TextureInstancing::GetName() const
 
 void TextureInstancing::OnRender()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     float camSpeed  {0.1f};
     float camAngle  {static_cast<float>(glfwGetTime() * camSpeed)};
     float camRadius {360.0f};

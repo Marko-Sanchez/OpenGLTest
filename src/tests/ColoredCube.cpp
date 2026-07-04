@@ -106,7 +106,6 @@ void ColoredCube::OnRender()
     m_lastFrameTime = currentTime;
     m_viewMatrix    = m_camera.GetViewMatrix();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, m_wireFrame ? GL_LINE : GL_FILL);
 
     m_shader.Bind();

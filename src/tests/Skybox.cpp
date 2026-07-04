@@ -190,8 +190,6 @@ std::string_view Skybox::GetName() const
 
 void Skybox::OnRender()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // Draw cube.
     m_cubeShader.Bind();
     m_cubeVAO.Bind();
