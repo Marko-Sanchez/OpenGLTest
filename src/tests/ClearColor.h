@@ -3,6 +3,7 @@
 #include "Test.h"
 
 #include <array>
+#include <memory>
 
 namespace tests
 {

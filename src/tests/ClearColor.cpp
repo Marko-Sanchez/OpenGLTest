@@ -1,5 +1,7 @@
 #include "ClearColor.h"
 
+#include <memory>
+
 #include <GL/glew.h>
 #include <imgui.h>
 

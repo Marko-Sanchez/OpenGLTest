@@ -10,8 +10,8 @@ namespace
     constexpr ImVec2 k_ButtonSize         {256, 24};
 }// anonymous namespace
 
-TestMenu::TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer)
-    :g_window(window),
+TestMenu::TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer):
+    g_window(window),
     m_currentTest(currentTestPointer)
 {}
 
@@ -22,10 +22,12 @@ std::string_view TestMenu::GetName() const
 
 void TestMenu::OnImGuiRender()
 {
-    for (auto& [name, test]: m_tests)
+    for (auto& [name, factory]: m_tests)
     {
         if (ImGui::Button(name.c_str(), k_ButtonSize))
-            m_currentTest = test(g_window);
+        {
+            m_currentTest = factory(g_window);
+        }
     }
 }
 }// namespace tests
