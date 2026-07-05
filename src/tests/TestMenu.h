@@ -14,29 +14,28 @@ namespace tests
 // test on demand, instead of loading all the test in the beginning of the application.
 class TestMenu final: public Test
 {
-    using TestFunc = std::function<std::shared_ptr<Test> (std::shared_ptr<void>)>;
-    struct Entry
-    {
-        std::string name;
-        TestFunc    factory;
-
-        Entry(std::string n, TestFunc f):
-            name(n), factory(f)
-        {}
-    };
-
     private:
 
-        // Pointer to window context, to be shared with tests.
-        std::shared_ptr<void>  g_window;
-        // Reference to a ptr outside this class, current selected test is updated via this variable.
-        std::shared_ptr<Test>& m_currentTest;
+        using TestFunc       = std::function<std::shared_ptr<Test> (std::shared_ptr<void>)>;
+        using OnTestSelected = std::function<void(std::shared_ptr<Test>)>;
 
+        struct Entry
+        {
+            std::string name;
+            TestFunc    factory;
+
+            Entry(std::string n, TestFunc f):
+                name(n), factory(f)
+            {}
+        };
+
+        OnTestSelected         m_onSelectedTest;
+        std::shared_ptr<void>  g_window;
         std::vector<Entry>     m_tests;
 
     public:
 
-        TestMenu(std::shared_ptr<void> window, std::shared_ptr<Test>& currentTestPointer);
+        TestMenu(std::shared_ptr<void> window, OnTestSelected selectedTest);
 
         std::string_view GetName() const override;
         void OnImGuiRender() override;

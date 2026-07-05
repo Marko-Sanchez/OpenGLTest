@@ -92,7 +92,13 @@ int main ()
 
     {
         std::shared_ptr<tests::Test> currentTest;
-        std::shared_ptr<tests::TestMenu> testMenu = std::make_shared<tests::TestMenu>(window, currentTest);
+
+        auto testMenu = std::make_shared<tests::TestMenu>(window,
+                [&currentTest](std::shared_ptr<tests::Test> newTest)
+                {
+                    currentTest = std::move(newTest);
+                });
+
         currentTest = testMenu;
 
         testMenu->RegisterTest<tests::ClearColor>("Clear Color");
@@ -128,6 +134,7 @@ int main ()
             {
                 imguiTitle.clear();
                 imguiTitle.append("Test Menu - ").append(currentTest->GetName()).append(" ###WindowTitle");
+
                 ImGui::Begin(imguiTitle.c_str());
                 if (currentTest != testMenu && (ImGui::ArrowButton("##left", ImGuiDir_Left) || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
                 {
