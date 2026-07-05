@@ -1,8 +1,8 @@
 # OpenGL Test ![API](https://img.shields.io/badge/api-OpenGL-lightgrey)
-Graphical showcase of OpenGL using C++ for use as a reference.
+Graphical showcase of OpenGL using C++ for use as reference.
 
 ## Details
-Desktop application demonstrating OpenGL examples, using c++-20 and cmake version (2.25.0)+.
+Desktop application demonstrating OpenGL examples, using c++-17 and cmake version (2.25.0)+.
 Different examples are shown in an ImGui window showcasing use of OpenGL from 2D to 3D.
 
 <p float="left">
