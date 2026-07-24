@@ -6,11 +6,11 @@ class Application
 {
 private:
 
-    std::shared_ptr<Core::Window> m_window;
+    Core::Window& m_window;
 
 public:
 
-    Application();
+    Application(Core::Window&);
     ~Application();
 
     Application(const Application&)            = delete;

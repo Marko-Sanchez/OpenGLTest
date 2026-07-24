@@ -20,20 +20,20 @@
 #include "tests/Trivial3DModel.h"
 #include "tests/Skybox.h"
 
-Application::Application()
+Application::Application(Core::Window& win):
+    m_window(win)
 {
-    m_window = std::make_shared<Core::Window>();
-    m_window->CreateWindow();
+    m_window.CreateWindow();
 }
 
 Application::~Application()
 {
-    m_window->DestroyWindow();
+    m_window.DestroyWindow();
 }
 
 void Application::Run()
 {
-    auto window = m_window->Get();
+    auto window = m_window.Get();
     if (!window)
     {
         return;
@@ -68,9 +68,9 @@ void Application::Run()
     std::string imguiTitle;
 
 
-    while (m_window->IsOpen())
+    while (m_window.IsOpen())
     {
-        if (m_window->ExitKey()) return;
+        if (m_window.ExitKey()) return;
 
 
         // clear and set background; set bitplane area (region of memory rendered as pixels) to the value selected by glclearcolor
@@ -98,7 +98,7 @@ void Application::Run()
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        m_window->UpdateBuffers();
+        m_window.UpdateBuffers();
     }
 
 

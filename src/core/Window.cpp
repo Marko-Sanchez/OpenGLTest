@@ -8,6 +8,12 @@
 
 namespace Core
 {
+Window::Window(int width, int height, std::string title):
+    _width(width),
+    _height(height),
+    _title(title)
+{}
+
 Window::~Window()
 {
     if (_window)
@@ -16,22 +22,11 @@ Window::~Window()
     }
 }
 
-void Window::CreateWindow(int width, int height)
+void Window::CreateWindow()
 {
     if (_window)
     {
         throw std::runtime_error("Window already created.");
-    }
-
-    glfwSetErrorCallback([](int error, const char* description)
-    {
-        std::cerr << "GLFW Error: " << error << ": " << description << std::endl;
-    });
-
-
-    if (!glfwInit())
-    {
-        throw std::runtime_error("Error intializing GLFW.");
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -41,13 +36,12 @@ void Window::CreateWindow(int width, int height)
     // Create a window-mode window and its OpenGL context.
     std::shared_ptr<GLFWwindow> window
     (
-        glfwCreateWindow(width, height, "OpenGL Test World", NULL, NULL),
+        glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL),
         glfwDestroyWindow
     );
 
     if (!window)
     {
-        glfwTerminate();
         throw std::runtime_error("Failed to create window.");
     }
     else
@@ -59,8 +53,6 @@ void Window::CreateWindow(int width, int height)
 
     if (GLenum glewError = glewInit(); GLEW_OK != glewError)
     {
-        window.reset();
-        glfwTerminate();
         throw std::runtime_error("glew not initialized.");
     }
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
@@ -68,7 +60,7 @@ void Window::CreateWindow(int width, int height)
     // tell OpenGL the size of the rendering window so OpenGL knows
     // how we want to display the data and coordinates with respect to the window
     // (0, 0) -> bottom-left coordinates.
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, _width, _height);
     // if user resizes window update viewport.
     auto windowResizeCallback = [](GLFWwindow* window, int width, int height)
     {
@@ -87,7 +79,6 @@ void Window::CreateWindow(int width, int height)
 void Window::DestroyWindow()
 {
     _window.reset();
-    glfwTerminate();
 }
 
 void Window::UpdateBuffers()

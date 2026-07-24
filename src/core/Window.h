@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -11,11 +12,14 @@ class Window
 {
 private:
 
+    int _width;
+    int _height;
+    std::string _title;
     std::shared_ptr<GLFWwindow> _window;
 
 public:
 
-    Window() = default;
+    Window(int width = 1280, int height = 1280, std::string title = "OpenGL Test World");
     ~Window();
 
     Window(const Window&)            = delete;
@@ -23,7 +27,7 @@ public:
     Window& operator=(const Window&) = delete;
     Window& operator=(Window&&)      = delete;
 
-    void CreateWindow(int width = 1280, int height = 1280);
+    void CreateWindow();
     void DestroyWindow();
     void UpdateBuffers();
 
