@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Test.h"
+#include "core/Test.h"
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>

@@ -1,5 +1,4 @@
 add_library(opengltest-tests
-    Test.h
     TestMenu.h
     TestMenu.cpp
     BatchRendering.h
@@ -32,5 +31,6 @@ target_include_directories(opengltest-tests
 target_link_libraries(opengltest-tests
     PUBLIC
         opengltest-gtx
+        opengltest-core
         imgui
 )

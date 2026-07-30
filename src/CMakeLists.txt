@@ -12,7 +12,6 @@ target_include_directories(opengltest PRIVATE
 )
 
 target_link_libraries(opengltest PRIVATE
-    opengltest-tests
     opengltest-app
     glfw
 )

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Test.h"
+#include "core/Test.h"
 #include "gtx/ModelLoader.h"
 #include "gtx/Shaders.h"
 

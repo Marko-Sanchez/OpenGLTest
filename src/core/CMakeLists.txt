@@ -2,6 +2,7 @@ add_library(opengltest-core
     WindowSystem.h
     Window.h
     Window.cpp
+    Test.h
     Command.h
 )
 

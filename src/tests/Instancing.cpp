@@ -1,10 +1,10 @@
 #include "Instancing.h"
-#include "imgui.h"
+
+#include <imgui.h>
+#include <GL/glew.h>
 
 #include <array>
 #include <cstddef>
-
-#include <GL/glew.h>
 
 namespace tests
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/Window.h"
-#include "tests/Test.h"
+#include "core/Test.h"
 #include "tests/TestMenu.h"
 
 class Application

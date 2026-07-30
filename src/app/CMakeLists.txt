@@ -10,7 +10,6 @@ target_include_directories(opengltest-app
 
 target_link_libraries(opengltest-app
     PUBLIC
-        opengltest-core
         opengltest-tests
         imgui
 )
