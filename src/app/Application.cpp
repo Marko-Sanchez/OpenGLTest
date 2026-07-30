@@ -26,11 +26,6 @@ Application::Application(Core::Window& win):
     m_window.CreateWindow();
 }
 
-Application::~Application()
-{
-    m_window.DestroyWindow();
-}
-
 void Application::Run()
 {
     auto window = m_window.Get();
@@ -44,26 +39,24 @@ void Application::Run()
     ImGui_ImplOpenGL3_Init();
     ImGui::StyleColorsDark();
 
-    std::shared_ptr<tests::Test> currentTest;
-
-    auto testMenu = std::make_shared<tests::TestMenu>(window,
-            [&currentTest](std::shared_ptr<tests::Test> newTest)
+    auto m_menu = std::make_shared<tests::TestMenu>(window,
+            [&currentTest = m_activeTest](std::shared_ptr<tests::Test> newTest)
             {
                 currentTest = std::move(newTest);
             });
 
-    currentTest = testMenu;
+    SetActiveTest(m_menu);
 
-    testMenu->RegisterTest<tests::ClearColor>("Clear Color");
-    testMenu->RegisterTest<tests::BatchRendering>("Batch Rendering");
-    testMenu->RegisterTest<tests::RawTexture>("Raw Texture");
-    testMenu->RegisterTest<tests::MultiTexture>("Multiple Texture");
-    testMenu->RegisterTest<tests::ColoredCube>("Colored Cube");
-    testMenu->RegisterTest<tests::TexturedCube>("Textured Cube");
-    testMenu->RegisterTest<tests::Trivial3DModel>("3D Model");
-    testMenu->RegisterTest<tests::Instancing>("Instancing");
-    testMenu->RegisterTest<tests::TextureInstancing>("Texture Instancing");
-    testMenu->RegisterTest<tests::Skybox>("Skybox");
+    m_menu->RegisterTest<tests::ClearColor>("Clear Color");
+    m_menu->RegisterTest<tests::BatchRendering>("Batch Rendering");
+    m_menu->RegisterTest<tests::RawTexture>("Raw Texture");
+    m_menu->RegisterTest<tests::MultiTexture>("Multiple Texture");
+    m_menu->RegisterTest<tests::ColoredCube>("Colored Cube");
+    m_menu->RegisterTest<tests::TexturedCube>("Textured Cube");
+    m_menu->RegisterTest<tests::Trivial3DModel>("3D Model");
+    m_menu->RegisterTest<tests::Instancing>("Instancing");
+    m_menu->RegisterTest<tests::TextureInstancing>("Texture Instancing");
+    m_menu->RegisterTest<tests::Skybox>("Skybox");
 
     std::string imguiTitle;
 
@@ -77,21 +70,21 @@ void Application::Run()
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        currentTest->OnRender();
+        m_activeTest->OnRender();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
             imguiTitle.clear();
-            imguiTitle.append("Test Menu - ").append(currentTest->GetName()).append(" ###WindowTitle");
+            imguiTitle.append("Test Menu - ").append(m_activeTest->GetName()).append(" ###WindowTitle");
 
             ImGui::Begin(imguiTitle.c_str());
-            if (currentTest != testMenu && (ImGui::ArrowButton("##left", ImGuiDir_Left) || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
+            if (m_activeTest != m_menu && (ImGui::ArrowButton("##left", ImGuiDir_Left) || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
             {
-                currentTest = testMenu;
+                SetActiveTest(m_menu);
             }
-            currentTest->OnImGuiRender();
+            m_activeTest->OnImGuiRender();
             ImGui::End();
         }
 
@@ -105,4 +98,9 @@ void Application::Run()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+}
+
+void Application::SetActiveTest(std::shared_ptr<tests::Test> test)
+{
+    m_activeTest = test;
 }
