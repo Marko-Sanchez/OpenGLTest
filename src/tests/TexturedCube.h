@@ -38,7 +38,7 @@ class TexturedCube final: public Test
 
     public:
 
-        TexturedCube(std::shared_ptr<void> window);
+        TexturedCube();
 
         std::string_view GetName() const override;
         void OnRender() override;

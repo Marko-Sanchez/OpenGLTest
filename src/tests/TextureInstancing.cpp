@@ -30,7 +30,7 @@ namespace
     const std::filesystem::path k_AsteriodModel {"res/3dmodels/rock/rock.obj"};
 }// anonymous namespace
 
-TextureInstancing::TextureInstancing(std::shared_ptr<void> _):
+TextureInstancing::TextureInstancing():
     m_planetModel(k_PlanetModel),
     m_asteriodModel(k_AsteriodModel),
     m_planetShader(k_PlanetVertShader, k_PlanetFragShader),

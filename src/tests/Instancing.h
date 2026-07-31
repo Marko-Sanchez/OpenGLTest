@@ -3,7 +3,6 @@
 #include "core/Test.h"
 #include "gtx/Shaders.h"
 
-#include <memory>
 #include <vector>
 
 #include <glm/fwd.hpp>
@@ -41,7 +40,7 @@ class Instancing final: public Test
 
     public:
 
-        Instancing(std::shared_ptr<void> window);
+        Instancing();
         ~Instancing();
 
         std::string_view GetName() const override;

@@ -35,7 +35,7 @@ class BatchRendering final: public Test
 
     public:
 
-        BatchRendering(std::shared_ptr<void> window);
+        BatchRendering();
         ~BatchRendering();
 
         BatchRendering(const BatchRendering&)            = delete;

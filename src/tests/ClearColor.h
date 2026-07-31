@@ -3,7 +3,6 @@
 #include "core/Test.h"
 
 #include <array>
-#include <memory>
 
 namespace tests
 {
@@ -15,7 +14,7 @@ class ClearColor final: public Test
 
     public:
 
-        ClearColor(std::shared_ptr<void> window);
+        ClearColor();
 
         std::string_view GetName() const override;
         void OnRender() override;

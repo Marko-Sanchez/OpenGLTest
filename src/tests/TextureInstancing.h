@@ -4,7 +4,6 @@
 #include "gtx/ModelLoader.h"
 #include "gtx/Shaders.h"
 
-#include <memory>
 #include <string_view>
 
 #include <glm/fwd.hpp>
@@ -28,7 +27,7 @@ class TextureInstancing final: public Test
 
     public:
 
-        TextureInstancing(std::shared_ptr<void> window);
+        TextureInstancing();
         ~TextureInstancing();
 
         std::string_view GetName() const override;

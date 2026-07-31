@@ -30,8 +30,8 @@ namespace
     };
 }// anonymous namespace
 
-Instancing::Instancing(std::shared_ptr<void> _)
-    :m_shader(k_VertexShader, k_FragmentShader)
+Instancing::Instancing():
+    m_shader(k_VertexShader, k_FragmentShader)
 {
     glGenVertexArrays(1, &m_quadVAO);
     glBindVertexArray(m_quadVAO);

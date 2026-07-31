@@ -26,8 +26,8 @@ namespace
     }
 }// anonymous namespace
 
-BatchRendering::BatchRendering(std::shared_ptr<void> window)
-    :m_shader(k_VertexShader, k_FragmentShader),
+BatchRendering::BatchRendering():
+    m_shader(k_VertexShader, k_FragmentShader),
     m_wireFrame(false)
 {
     // Could be any size, but should be large enough to fit desired data; otherwise, will need

@@ -21,8 +21,8 @@ namespace
     const std::filesystem::path k_ModelFile      {"res/3dmodels/boxcar/11813_Box_car_v1_l1.obj"};
 }// anonymous namespace
 
-Trivial3DModel::Trivial3DModel(std::shared_ptr<void> window)
-    :m_shader(k_VertexShader, k_FragmentShader),
+Trivial3DModel::Trivial3DModel():
+    m_shader(k_VertexShader, k_FragmentShader),
     m_modelLoader(k_ModelFile),
     m_wireFrame(false)
 {

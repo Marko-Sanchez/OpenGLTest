@@ -38,8 +38,8 @@ namespace
     };
 }// anonymous namespace
 
-RawTexture::RawTexture(std::shared_ptr<void> window)
-:m_shader(k_VertexShader, k_FragmentShader)
+RawTexture::RawTexture():
+    m_shader(k_VertexShader, k_FragmentShader)
 {
     // VAO must be bound before vbo and ebo are bound.
     glGenVertexArrays(1, &m_vao);

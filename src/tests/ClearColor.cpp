@@ -1,7 +1,5 @@
 #include "ClearColor.h"
 
-#include <memory>
-
 #include <GL/glew.h>
 #include <imgui.h>
 
@@ -12,8 +10,8 @@ namespace
     constexpr std::string_view k_TestName {"Clear Color"};
 }// anonymous namespace
 
-ClearColor::ClearColor(std::shared_ptr<void> window)
-:m_clearColor{0.2f, 0.3f, 0.8f, 1.0f}
+ClearColor::ClearColor():
+    m_clearColor{0.2f, 0.3f, 0.8f, 1.0f}
 {}
 
 std::string_view ClearColor::GetName() const

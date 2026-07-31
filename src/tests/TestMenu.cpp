@@ -1,5 +1,7 @@
 #include "TestMenu.h"
 
+#include "core/Command.h"
+
 #include <imgui.h>
 
 namespace tests
@@ -10,26 +12,24 @@ namespace
     constexpr ImVec2 k_ButtonSize         {256, 24};
 }// anonymous namespace
 
-TestMenu::TestMenu(std::shared_ptr<void> window, OnTestSelected onTestSelected):
-    g_window(window),
-    m_onSelectedTest(onTestSelected)
-{}
-
 std::string_view TestMenu::GetName() const
 {
     return k_TestName;
 }
 
-// factory() returns a shared_ptr of the test selected, of which m_onSelectedTest then assigns
-// to the current test running in main.cpp
 void TestMenu::OnImGuiRender()
 {
-    for (auto& [name, factory]: m_tests)
+    for (auto& command: m_commands)
     {
-        if (ImGui::Button(name.c_str(), k_ButtonSize))
+        if (ImGui::Button(command->GetLabel().data(), k_ButtonSize))
         {
-            m_onSelectedTest(factory(g_window));
+            command->Execute();
         }
     }
+}
+
+void TestMenu::MakeCommand(std::unique_ptr<Core::Command> command)
+{
+    m_commands.push_back(std::move(command));
 }
 }// namespace tests

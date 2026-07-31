@@ -4,6 +4,8 @@ add_library(opengltest-core
     Window.cpp
     Test.h
     Command.h
+    BasicCommand.h
+    Receiver.h
 )
 
 target_include_directories(opengltest-core

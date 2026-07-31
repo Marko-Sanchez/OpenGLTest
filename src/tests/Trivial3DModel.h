@@ -23,7 +23,7 @@ class Trivial3DModel final: public Test
 
     public:
 
-        Trivial3DModel(std::shared_ptr<void> window);
+        Trivial3DModel();
         ~Trivial3DModel();
 
         std::string_view GetName() const override;

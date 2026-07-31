@@ -33,7 +33,7 @@ class RawTexture final: public Test
 
     public:
 
-        RawTexture(std::shared_ptr<void> window);
+        RawTexture();
         ~RawTexture();
 
         RawTexture(const RawTexture&)            = delete;

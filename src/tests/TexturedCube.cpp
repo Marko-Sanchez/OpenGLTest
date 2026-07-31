@@ -83,8 +83,8 @@ namespace
     };
 }// anonymous namespace
 
-TexturedCube::TexturedCube(std::shared_ptr<void> window)
-:m_shader(k_VertexShader, k_FragmentShader)
+TexturedCube::TexturedCube():
+    m_shader(k_VertexShader, k_FragmentShader)
 {
     m_vao.Bind();
     m_vbo.Bind();

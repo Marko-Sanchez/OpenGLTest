@@ -7,6 +7,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 
+#include "core/BasicCommand.h"
 #include "tests/TestMenu.h"
 
 #include "tests/ClearColor.h"
@@ -39,24 +40,19 @@ void Application::Run()
     ImGui_ImplOpenGL3_Init();
     ImGui::StyleColorsDark();
 
-    auto m_menu = std::make_shared<tests::TestMenu>(window,
-            [&currentTest = m_activeTest](std::shared_ptr<tests::Test> newTest)
-            {
-                currentTest = std::move(newTest);
-            });
-
+    m_menu = std::make_shared<tests::TestMenu>();
     SetActiveTest(m_menu);
 
-    m_menu->RegisterTest<tests::ClearColor>("Clear Color");
-    m_menu->RegisterTest<tests::BatchRendering>("Batch Rendering");
-    m_menu->RegisterTest<tests::RawTexture>("Raw Texture");
-    m_menu->RegisterTest<tests::MultiTexture>("Multiple Texture");
-    m_menu->RegisterTest<tests::ColoredCube>("Colored Cube");
-    m_menu->RegisterTest<tests::TexturedCube>("Textured Cube");
-    m_menu->RegisterTest<tests::Trivial3DModel>("3D Model");
-    m_menu->RegisterTest<tests::Instancing>("Instancing");
-    m_menu->RegisterTest<tests::TextureInstancing>("Texture Instancing");
-    m_menu->RegisterTest<tests::Skybox>("Skybox");
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::ClearColor>>(this, "Clear Color"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::BatchRendering>>(this, "Batch Rendering"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::RawTexture>>(this, "Raw Texture"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::MultiTexture>>(this, "Multiple Texture"));
+    // m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::ColoredCube>>(this, "Colored Cube"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::TexturedCube>>(this, "Textured Cube"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Trivial3DModel>>(this, "3D Model"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Instancing>>(this, "Instancing"));
+    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::TextureInstancing>>(this, "Texture Instancing"));
+    // m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Skybox>>(this, "Skybox"));
 
     std::string imguiTitle;
 

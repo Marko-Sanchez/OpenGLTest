@@ -51,7 +51,7 @@ class MultiTexture final: public Test
 
     public:
 
-        MultiTexture(std::shared_ptr<void> window);
+        MultiTexture();
 
         std::string_view GetName() const override;
         void OnRender() override;

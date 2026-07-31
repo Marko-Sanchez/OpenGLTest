@@ -1,10 +1,11 @@
 #pragma once
 
+#include "core/Receiver.h"
 #include "core/Window.h"
 #include "core/Test.h"
 #include "tests/TestMenu.h"
 
-class Application
+class Application: public Core::Receiver
 {
 private:
 
@@ -23,5 +24,5 @@ public:
     Application& operator=(Application&&)      = delete;
 
     void Run();
-    void SetActiveTest(std::shared_ptr<tests::Test>);
+    void SetActiveTest(std::shared_ptr<tests::Test>) override;
 };

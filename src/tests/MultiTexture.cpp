@@ -51,8 +51,8 @@ namespace
     };
 }// anonymous namespace
 
-MultiTexture::MultiTexture(std::shared_ptr<void> window)
-:m_shader(k_VertexShader, k_FragmentShader)
+MultiTexture::MultiTexture():
+    m_shader(k_VertexShader, k_FragmentShader)
 {
     m_vao.Bind();
     m_vbo.CreateBuffer(k_VertexArray);
