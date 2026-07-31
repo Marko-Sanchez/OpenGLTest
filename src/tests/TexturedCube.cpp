@@ -17,8 +17,8 @@ namespace tests
 namespace
 {
     constexpr std::string_view k_TestName        {"Textured Cube"};
-    const std::filesystem::path k_VertexShader   {"res/Shaders/TexturedCube.vertex"};
-    const std::filesystem::path k_FragmentShader {"res/Shaders/TexturedCube.fragment"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/TexturedCube.vert"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/TexturedCube.frag"};
     const std::filesystem::path k_Image          {"res/images/mc.png"};
 
     // higher the -z the further / smaller from the screen the square is.
