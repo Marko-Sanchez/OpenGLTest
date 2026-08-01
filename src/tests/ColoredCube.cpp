@@ -18,8 +18,8 @@ namespace tests
 namespace
 {
     constexpr std::string_view k_TestName        {"Colored Cube"};
-    const std::filesystem::path k_VertexShader   {"res/Shaders/Cube.vertex"};
-    const std::filesystem::path k_FragmentShader {"res/Shaders/Cube.fragment"};
+    const std::filesystem::path k_VertexShader   {"res/Shaders/Cube.vert"};
+    const std::filesystem::path k_FragmentShader {"res/Shaders/Cube.frag"};
 
     constexpr std::array<ColoredCube::Vertex, 8> k_VertexArray =
     {{
