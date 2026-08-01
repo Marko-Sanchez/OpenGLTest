@@ -54,8 +54,8 @@ namespace
     };
 }// anonymous namespace
 
-ColoredCube::ColoredCube(std::shared_ptr<void> window)
-    :m_window(std::reinterpret_pointer_cast<GLFWwindow>(window)),
+ColoredCube::ColoredCube(GLFWwindow* window):
+    m_window(window),
     m_shader(k_VertexShader, k_FragmentShader),
     m_lastFrameTime(0.f),
     m_wireFrame(false)
@@ -125,19 +125,19 @@ void ColoredCube::OnImGuiRender()
 
 void ColoredCube::ProcessKeyboardInput(float deltaTime)
 {
-    if (glfwGetKey(m_window.get(), GLFW_KEY_UP) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(FORWARD, deltaTime);
     }
-    if (glfwGetKey(m_window.get(), GLFW_KEY_DOWN) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(BACKWARD, deltaTime);
     }
-    if (glfwGetKey(m_window.get(), GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(RIGHT, deltaTime);
     }
-    if (glfwGetKey(m_window.get(), GLFW_KEY_LEFT) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(LEFT, deltaTime);
     }

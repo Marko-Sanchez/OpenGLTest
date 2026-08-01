@@ -21,7 +21,7 @@ class Skybox final: public Test
         float m_lastY;
         bool m_firstMouseMovement;
 
-        std::shared_ptr<GLFWwindow> m_window;
+        GLFWwindow* m_window;
 
         Texture m_cubeTexture;
 
@@ -41,7 +41,7 @@ class Skybox final: public Test
 
     public:
 
-        Skybox(std::shared_ptr<void> window);
+        Skybox(GLFWwindow* window);
 
         std::string_view GetName() const override;
         void OnRender() override;

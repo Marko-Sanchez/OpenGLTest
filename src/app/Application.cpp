@@ -8,6 +8,8 @@
 #include <imgui_impl_glfw.h>
 
 #include "core/BasicCommand.h"
+#include "core/WindowedCommand.h"
+
 #include "tests/TestMenu.h"
 
 #include "tests/ClearColor.h"
@@ -29,14 +31,14 @@ Application::Application(Core::Window& win):
 
 void Application::Run()
 {
-    auto window = m_window.Get();
-    if (!window)
+    auto glfwWindow = m_window.Get();
+    if (glfwWindow == nullptr)
     {
         return;
     }
 
     ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
+    ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
     ImGui_ImplOpenGL3_Init();
     ImGui::StyleColorsDark();
 
@@ -47,12 +49,12 @@ void Application::Run()
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::BatchRendering>>(this, "Batch Rendering"));
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::RawTexture>>(this, "Raw Texture"));
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::MultiTexture>>(this, "Multiple Texture"));
-    // m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::ColoredCube>>(this, "Colored Cube"));
+    m_menu->MakeCommand(std::make_unique<Core::WindowedCommand<tests::ColoredCube>>(this, "Colored Cube", glfwWindow));
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::TexturedCube>>(this, "Textured Cube"));
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Trivial3DModel>>(this, "3D Model"));
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Instancing>>(this, "Instancing"));
     m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::TextureInstancing>>(this, "Texture Instancing"));
-    // m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Skybox>>(this, "Skybox"));
+    m_menu->MakeCommand(std::make_unique<Core::WindowedCommand<tests::Skybox>>(this, "Skybox", glfwWindow));
 
     std::string imguiTitle;
 
@@ -76,7 +78,7 @@ void Application::Run()
             imguiTitle.append("Test Menu - ").append(m_activeTest->GetName()).append(" ###WindowTitle");
 
             ImGui::Begin(imguiTitle.c_str());
-            if (m_activeTest != m_menu && (ImGui::ArrowButton("##left", ImGuiDir_Left) || glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS))
+            if (m_activeTest != m_menu && (ImGui::ArrowButton("##left", ImGuiDir_Left) || glfwGetKey(glfwWindow, GLFW_KEY_Q) == GLFW_PRESS))
             {
                 SetActiveTest(m_menu);
             }

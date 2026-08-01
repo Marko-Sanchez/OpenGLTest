@@ -134,10 +134,10 @@ namespace
     };
 }// anonymous namespace
 
-Skybox::Skybox(std::shared_ptr<void> window)
-    :m_lastFrameTime(0.0f),
+Skybox::Skybox(GLFWwindow* window):
+    m_lastFrameTime(0.0f),
     m_firstMouseMovement(true),
-    m_window(std::reinterpret_pointer_cast<GLFWwindow>(window)),
+    m_window(window),
     m_cubeShader( k_CubeVertexShader, k_CubeFragmentShader),
     m_skyboxShader( k_SkyBoxVertexShader, k_SkyBoxFragmentShader)
 {
@@ -168,17 +168,17 @@ Skybox::Skybox(std::shared_ptr<void> window)
 
     // TODO: Note once cursor is diabled it is unable to interact with ImGui. fix later.
     // set mouse callback.
-    glfwSetWindowUserPointer(m_window.get(), this);
-    glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xPosIn, double yPosIn)
+    glfwSetWindowUserPointer(m_window, this);
+    glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xPosIn, double yPosIn)
     {
         reinterpret_cast<Skybox*>(glfwGetWindowUserPointer(window))->MouseCallback(window, xPosIn, yPosIn);
     });
-    glfwSetScrollCallback(m_window.get(), [](GLFWwindow* window, double xPosIn, double yPosIn)
+    glfwSetScrollCallback(m_window, [](GLFWwindow* window, double xPosIn, double yPosIn)
     {
         reinterpret_cast<Skybox*>(glfwGetWindowUserPointer(window))->ScrollWheelCallback(window, xPosIn, yPosIn);
     });
     // tell glfw to capture mouse.
-    glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -249,19 +249,19 @@ void Skybox::OnImGuiRender()
 */
 void Skybox::ProcessKeyboardInput(float deltaTime)
 {
-    if (glfwGetKey(m_window.get(), GLFW_KEY_UP) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(FORWARD, deltaTime);
     }
-    if (glfwGetKey(m_window.get(), GLFW_KEY_DOWN) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(BACKWARD, deltaTime);
     }
-    if (glfwGetKey(m_window.get(), GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(RIGHT, deltaTime);
     }
-    if (glfwGetKey(m_window.get(), GLFW_KEY_LEFT) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         m_camera.ProcessKeyboardInput(LEFT, deltaTime);
     }

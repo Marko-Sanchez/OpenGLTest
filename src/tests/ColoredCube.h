@@ -2,7 +2,6 @@
 
 #include "core/Test.h"
 
-#include <memory>
 #include <string_view>
 
 #include "gtx/Shaders.h"
@@ -27,7 +26,7 @@ class ColoredCube final: public Test
 
     private:
 
-        std::shared_ptr<GLFWwindow> m_window;
+        GLFWwindow* m_window;
 
         Shaders      m_shader;
         VertexArray  m_vao;
@@ -45,7 +44,7 @@ class ColoredCube final: public Test
 
     public:
 
-        ColoredCube(std::shared_ptr<void> window);
+        ColoredCube(GLFWwindow* window);
         ~ColoredCube();
 
         std::string_view GetName() const override;

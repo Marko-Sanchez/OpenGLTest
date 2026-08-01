@@ -97,8 +97,8 @@ bool Window::ExitKey()
     return glfwGetKey(_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS;
 }
 
-std::shared_ptr<GLFWwindow> Window::Get()
+GLFWwindow* Window::Get()
 {
-    return _window;
+    return _window.get();
 }
 }// namespace Core

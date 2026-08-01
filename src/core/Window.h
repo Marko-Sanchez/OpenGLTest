@@ -34,6 +34,6 @@ public:
     bool IsOpen();
     bool ExitKey();
 
-    std::shared_ptr<GLFWwindow> Get();
+    GLFWwindow* Get();
 };
 }
