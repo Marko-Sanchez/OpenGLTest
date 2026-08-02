@@ -45,16 +45,16 @@ void Application::Run()
     m_menu = std::make_shared<tests::TestMenu>();
     SetActiveTest(m_menu);
 
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::ClearColor>>(this, "Clear Color"));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::BatchRendering>>(this, "Batch Rendering"));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::RawTexture>>(this, "Raw Texture"));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::MultiTexture>>(this, "Multiple Texture"));
-    m_menu->MakeCommand(std::make_unique<Core::WindowedCommand<tests::ColoredCube>>(this, "Colored Cube", glfwWindow));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::TexturedCube>>(this, "Textured Cube"));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Trivial3DModel>>(this, "3D Model"));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::Instancing>>(this, "Instancing"));
-    m_menu->MakeCommand(std::make_unique<Core::BasicCommand<tests::TextureInstancing>>(this, "Texture Instancing"));
-    m_menu->MakeCommand(std::make_unique<Core::WindowedCommand<tests::Skybox>>(this, "Skybox", glfwWindow));
+    m_menu->AddCommand("Clear Color", std::make_unique<Core::BasicCommand<tests::ClearColor>>(this));
+    m_menu->AddCommand("Batch Rendering", std::make_unique<Core::BasicCommand<tests::BatchRendering>>(this));
+    m_menu->AddCommand("Raw Texture", std::make_unique<Core::BasicCommand<tests::RawTexture>>(this));
+    m_menu->AddCommand("Multiple Texture", std::make_unique<Core::BasicCommand<tests::MultiTexture>>(this));
+    m_menu->AddCommand("Colored Cube", std::make_unique<Core::WindowedCommand<tests::ColoredCube>>(this, glfwWindow));
+    m_menu->AddCommand("Textured Cube", std::make_unique<Core::BasicCommand<tests::TexturedCube>>(this));
+    m_menu->AddCommand("3D Model", std::make_unique<Core::BasicCommand<tests::Trivial3DModel>>(this));
+    m_menu->AddCommand("Instancing", std::make_unique<Core::BasicCommand<tests::Instancing>>(this));
+    m_menu->AddCommand("Texture Instancing", std::make_unique<Core::BasicCommand<tests::TextureInstancing>>(this));
+    m_menu->AddCommand("Skybox", std::make_unique<Core::WindowedCommand<tests::Skybox>>(this, glfwWindow));
 
     std::string imguiTitle;
 

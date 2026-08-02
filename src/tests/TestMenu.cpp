@@ -19,17 +19,17 @@ std::string_view TestMenu::GetName() const
 
 void TestMenu::OnImGuiRender()
 {
-    for (auto& command: m_commands)
+    for (auto& [label, command]: m_commands)
     {
-        if (ImGui::Button(command->GetLabel().data(), k_ButtonSize))
+        if (ImGui::Button(label.c_str(), k_ButtonSize))
         {
             command->Execute();
         }
     }
 }
 
-void TestMenu::MakeCommand(std::unique_ptr<Core::Command> command)
+void TestMenu::AddCommand(std::string name, std::unique_ptr<Core::Command> command)
 {
-    m_commands.push_back(std::move(command));
+    m_commands.emplace_back(std::move(name), std::move(command));
 }
 }// namespace tests
